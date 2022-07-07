@@ -1,11 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import Injector_Code_Test
 from rocketcea.cea_obj import CEA_Obj
 
 
 class ChamberSizing:
     
-    def __init__(self, F, OF_ratio, p_0, R_c, L_characteristic, Theta_c, Theta_e, spray_angle, mu, m, w, M):
+    def __init__(self, F, OF_ratio, p_0, R_c, L_characteristic, Theta_c, Theta_e, spray_angle, mu, m, w, M, injector):
 
         self.combustion_props = {
             'F': F,                     # Thrust force [N]
@@ -27,6 +28,8 @@ class ChamberSizing:
             'w': w,
             'M': M,
             }
+        
+        self.injector = injector #injector object is being passed into the chamber class
     
     def CEArun(self):
 #     def get_CEA_output(OFratio, Pc, Pe, Oxi, Fuel):
