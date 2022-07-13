@@ -6,7 +6,7 @@ from rocketcea.cea_obj import CEA_Obj
 
 class ChamberSizing:
     
-    def __init__(self, F, OF_ratio, p_0, R_c, L_characteristic, Theta_c, Theta_e, spray_angle, mu, m, w, M, injector):
+    def __init__(self, F, OF_ratio, p_0, R_c, L_characteristic, Theta_c, Theta_e, spray_angle, mu, m, w, M, Injector):
 
         self.combustion_props = {
             'F': F,                     # Thrust force [N]
@@ -29,51 +29,51 @@ class ChamberSizing:
             'M': M,
             }
         
-        self.injector = injector #injector object is being passed into the chamber class
+        self.Injector = Injector #injector object is being passed into the chamber class
     
     def CEArun(self):
-#     def get_CEA_output(OFratio, Pc, Pe, Oxi, Fuel):
-#         # C = CEA_Obj( oxName='LOX', fuelName='JetA', isp_units='m/s', cstar_units='m/s', temperature_units='K')
+        def get_CEA_output(OFratio, Pc, Pe, Oxi, Fuel):
+            # C = CEA_Obj( oxName='LOX', fuelName='JetA', isp_units='m/s', cstar_units='m/s', temperature_units='K')
 
-#         C = CEA_Obj(oxName=Oxi, fuelName=Fuel)
+            C = CEA_Obj(oxName=Oxi, fuelName=Fuel)
 
-#         # print("O/F, Isp(m/s), Cstar(m/s), Temp(K)")
+            # print("O/F, Isp(m/s), Cstar(m/s), Temp(K)")
 
-#         max_Isp = 0
-#         opt_eps = 0
+            max_Isp = 0
+            opt_eps = 0
 
-#         for eps in np.arange(2, 7, 0.1):
-#             # Isp_th = C.get_Throat_Isp(Pc=Pc, MR=of_ratio)
-#             # Isp, Cstar, Tc = C.get_IvacCstrTc(Pc=Pc, MR=of_ratio, eps=eps)
+            for eps in np.arange(2, 7, 0.1):
+                # Isp_th = C.get_Throat_Isp(Pc=Pc, MR=of_ratio)
+                # Isp, Cstar, Tc = C.get_IvacCstrTc(Pc=Pc, MR=of_ratio, eps=eps)
 
-#             # print(f"{of_ratio:.2f}     {Isp_th:.0f}      {Cstar:.0f}        {Tc:.0f}   {C.get_PcOvPe(Pc=Pc, MR=2, eps=eps):.0f}")
+                # print(f"{of_ratio:.2f}     {Isp_th:.0f}      {Cstar:.0f}        {Tc:.0f}   {C.get_PcOvPe(Pc=Pc, MR=2, eps=eps):.0f}")
 
-#             Isp, mode = C.estimate_Ambient_Isp(Pc=Pc, MR=OFratio, eps=eps, Pamb=14.7)
-#             if Isp > max_Isp:
-#                 max_Isp = Isp
-#                 opt_eps = eps
+                Isp, mode = C.estimate_Ambient_Isp(Pc=Pc, MR=OFratio, eps=eps, Pamb=14.7)
+                if Isp > max_Isp:
+                    max_Isp = Isp
+                    opt_eps = eps
 
-#             #print(f"{eps:.2f}     {Isp:.0f}")
+                #print(f"{eps:.2f}     {Isp:.0f}")
 
-#         Cstar = C.get_Cstar(Pc=Pc)
-#         Temps = C.get_Temperatures(Pc=Pc,MR=OFratio,eps=opt_eps)
-#         ChamberTemp = Temps[0]
+            Cstar = C.get_Cstar(Pc=Pc)
+            Temps = C.get_Temperatures(Pc=Pc,MR=OFratio,eps=opt_eps)
+            ChamberTemp = Temps[0]
 
-#         print(opt_eps)
-#         print(max_Isp)
-#         print(Cstar)
-#         print(ChamberTemp)        
-        
-        
-        self.CEA_props = {
-            'T_0': 3440.69,
-            'gamma': 1.1976,
-            'Cp': 2.3183e3,
-            'v_e': 2646.9,
-            'M_e': 2.661,
-            'eps': 4.7409,
-            }
-        return self.CEA_props
+            print(opt_eps)
+            print(max_Isp)
+            print(Cstar)
+            print(ChamberTemp)        
+            
+            
+            self.CEA_props = {
+                'T_0': 3440.69,
+                'gamma': 1.1976,
+                'Cp': 2.3183e3,
+                'v_e': 2646.9,
+                'M_e': 2.661,
+                'eps': 4.7409,
+                }
+            return self.CEA_props
     
     
     def values(self):
