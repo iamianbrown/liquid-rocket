@@ -41,21 +41,24 @@ class graphing:
         delta_P = float(input("Enter fuel pressure drop: "))
         delta_P_o = float(input("Enter oxidizer pressure drop: "))
 
-        test = Chamber_Size_Test.ChamberSizing.__init__()
+        # test = Chamber_Size_Test.ChamberSizing.__init__()
 
         pedro = np.array([Pe,Pc,OFratio,p_0,R_c,L_characteristic,Theta_c,Theta_e,spray_angle,mu,m,w,M,d_c,rho_r,rho_z,d1,d2,C_d,delta_P,delta_P_o])
+        # cham = np.array(F,OFratio,p_0,R_c,L_characteristic,Theta_c,Theta_e,spray_angle,mu,m,w,M)
         
+
         for i in pedro:
             if pedro[i] == 0.1:
                 
                 independentrange = float(input("Enter max value to test independent variable: "))
                 ind = np.linspace(0,independentrange,1000)
+                pedro[i] = ind
         
-        for i in pedro:
-            if pedro[i] != 0.2:
-                step1 = Chamber_Size_Test.ChamberSizing(F,OFratio,p_0,R_c,L_characteristic,Theta_c,Theta_e,spray_angle,mu,m,w,M)
+        step1 = Chamber_Size_Test.ChamberSizing(F,OFratio,p_0,R_c,L_characteristic,Theta_c,Theta_e,spray_angle,mu,m,w,M)
 
+
+        
         #if user inputs 0.1 for any numerical input above ---> code will assume that variable to be the independent variable graphed
-        #if user inputs 0.2 for any numerical input above ---> code will assume that variable to be the dependent variable graphed
+        #if user inputs 0 for any numerical input above ---> code will assume that variable to be the dependent variable graphed
 
 

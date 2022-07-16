@@ -12,19 +12,22 @@ class Injector:
 
     '''
 
-    def __init__(self, P_c, mdot_t, OF, d_c, rho_r, rho_z, d1, d2, C_d, delta_P, delta_P_o):
-        self.P_c = P_c
-        self.mdot_t = mdot_t
-        self.OF = OF
-        self.d_c = d_c
-        self.rho_r = rho_r
-        self.rho_z = rho_z
-        self.d1 = d1
-        self.d2 = d2
-        self.C_d = C_d
-        self.delta_P = delta_P
-        self.delta_P_o = delta_P_o
-
+    def __init__(self, chamber, d_c, rho_r, rho_z, d1, d2, C_d, delta_P, delta_P_o):  
+        self.p_c = chamber.combustion_props['p_c']
+        self.mdot_t = chamber.dict_values()['m_dot']
+        self.OF_ratio = chamber.combustion_props['OF_ratio']
+        
+        self.injector_props = {
+            'd_c': d_c,
+            'rho_r': rho_r,
+            'rho_z': rho_z,
+            'd1': d1,
+            'd2': d2,
+            'C_d': C_d,
+            'delta_P': delta_P,
+            'delta_P_o': delta_P_o
+        }
+        
     def pintleParams(cea_data, gap_size, d_o, P_c):
         # cea_data is a list containing all relevant CEARUN parameters (T, OF, V_exit)
         # calculate the following parameters

@@ -4,14 +4,15 @@ import Injector_Code_Test
 from rocketcea.cea_obj import CEA_Obj
 
 
-class ChamberSizing:
+class Chamber:
     
-    def __init__(self, F, OF_ratio, p_0, R_c, L_characteristic, Theta_c, Theta_e, spray_angle, mu, m, w, M, Injector):
+    def __init__(self, F, OF_ratio, p_c, R_c, L_characteristic, Theta_c, Theta_e, spray_angle, mu, m, w, M):
 
         self.combustion_props = {
             'F': F,                     # Thrust force [N]
             'OF_ratio': OF_ratio,       # Oxidizer/fuel ratio
-            'p_0':p_0,                  # Stagnation pressure at the combustion chamber [Pa]
+            'p_c':p_c,                  # Stagnation pressure at the combustion chamber [Pa]
+            #calculate R, Cv, Cp, gamma, Exit velocity
             }
 
         self.geometric_props = {
@@ -29,10 +30,14 @@ class ChamberSizing:
             'M': M,
             }
         
-        self.Injector = Injector #injector object is being passed into the chamber class
+        self.geocalc() #this line 
+        self.m_dot = m_dot
+        self.injector = Injector_Code_Test.Injector(d_c,rho_r,rho_z,d1,d2,C_d,delta_P,delta_P_o,mdot) #injector object is being passed into the chamber class
+
+        #add a function that calculates the mass flow 
     
     def CEArun(self):
-        def get_CEA_output(OFratio, Pc, Pe, Oxi, Fuel):
+        def get_CEA_output(self, OFratio, Pc, Pe, Oxi, Fuel):
             # C = CEA_Obj( oxName='LOX', fuelName='JetA', isp_units='m/s', cstar_units='m/s', temperature_units='K')
 
             C = CEA_Obj(oxName=Oxi, fuelName=Fuel)
@@ -76,48 +81,42 @@ class ChamberSizing:
             return self.CEA_props
     
     
-    def values(self):
-        Cv = self.CEArun()['Cp']/self.CEArun()['gamma']
-        R = self.CEArun()['Cp']-Cv              # Specific gas constant
-
-        m_dot = self.combustion_props['F']/self.CEArun()['v_e']  # Needed mass flow for the required thrust
-
-        # That conditions throat area, and we can obtain it from the chocked flow
-        # mass flow rate equation.
-        # m dot = p 0*A t/sqrt(T 0)*sqrt(gamma/R*(2/(gamma+1))**((gamma+1)/(gamma−1)))
-
-        A_t = m_dot/(self.combustion_props['p_0']/np.sqrt(self.CEArun()['T_0'])*np.sqrt(self.CEArun()['gamma']/R*(2/(self.CEArun()['gamma']+1))**((self.CEArun()['gamma']+1)/(self.CEArun()['gamma']-1))))
+    def geocalc(self):
+        self.m_dot = self.combustion_props['F']/self.CEArun()['v_e']  # Needed mass flow for the required thrust
+        self.A_t = self.m_dot/(self.combustion_props['p_c']/np.sqrt(self.CEArun()['T_0'])*np.sqrt(self.CEArun()['gamma']/R*(2/(self.CEArun()['gamma']+1))**((self.CEArun()['gamma']+1)/(self.CEArun()['gamma']-1))))
 
         # The compression ratio will be
-        eps_c = (np.pi*self.geometric_props['R_c']**2)/A_t
+        self.eps_c = (np.pi*self.geometric_props['R_c']**2)/self.A_t
 
-        V_c = self.geometric_props['L_characteristic']*A_t # Volume of combustion chamber [m^3]
+        self.V_c = self.geometric_props['L_characteristic']*self.A_t # Volume of combustion chamber [m^3]
 
         # If we want the combustion chamber radius to be R_c , then we need a
         # length:
-        L_c = V_c/(np.pi*self.geometric_props['R_c']**2) # Length of combustion chamber
+        self.L_c = self.V_c/(np.pi*self.geometric_props['R_c']**2) # Length of combustion chamber
 
         ## STEP 3: GEOMETRICAL PARAMETERS FOR THE NOZZLE
 
-        R_t = np.sqrt(A_t/np.pi)  # Throat radius
-        R_e = np.sqrt(self.CEArun()['eps'])*R_t  # Exit radius
+        self.R_t = np.sqrt(self.A_t/np.pi)  # Throat radius
+        self.R_e = np.sqrt(self.CEArun()['eps'])*self.R_t  # Exit radius
 
-        R_b = 1.5*R_t     # Radius of bigger arc, usually 1.5 times the throat radius
-        R_s = 0.4*R_t     # Radius of smaller arc, usually 0.4 times the throat radius
+        self.R_b = 1.5*self.R_t     # Radius of bigger arc, usually 1.5 times the throat radius
+        self.R_s = 0.4*self.R_t     # Radius of smaller arc, usually 0.4 times the throat radius
 
-        R_pintle = self.geometric_props['R_c']/4  # Pintle radius
-        L_pintle = L_c/3  # Pintle length
-        
-        
-        ####### Bartz
-        
+        self.R_pintle = self.geometric_props['R_c']/4  # Pintle radius
+        self.L_pintle = self.L_c/3  # Pintle length
+
+    def Bartzcalc(self):
         D_t = 2*R_t
         Pr = 4*self.CEArun()['gamma']/(9*self.CEArun()['gamma']-5) # prandtl number given in Bartz paper
         c_t = np.sqrt((1/self.CEArun()['gamma'])*((self.CEArun()['gamma']+1)/2)**((self.CEArun()['gamma']+1)/(self.CEArun()['gamma']-1))*R*self.CEArun()['T_0']) # characteristic velocity
         T_w = self.CEArun()['T_0']                # assume for now
         sigma = 1/((1/2)*(T_w/self.CEArun()['T_0'])*(1+((self.CEArun()['gamma']-1)/2)*self.bartz_props['M']**2)+1/2)**(0.8-(self.bartz_props['w']/5))*(1+((self.CEArun()['gamma']-1)/2)*self.bartz_props['M']**2)**(self.bartz_props['w']/5) # dimensionless factor
+    
+    def values(self):
+        Cv = self.CEArun()['Cp']/self.CEArun()['gamma']
+        R = self.CEArun()['Cp']-Cv              # Specific gas constant
         
-        return Cv, R, m_dot, A_t, eps_c, V_c, L_c, R_t, R_e, R_b, R_s, R_pintle, L_pintle, Pr, c_t, T_w, sigma
+        return Cv, R
         
     def plot(self):
         
@@ -180,7 +179,7 @@ class ChamberSizing:
         
         D_t = 2*R_t
         def Bartz(y_values):
-            h = ((0.026/(D_t**0.2))*((self.bartz_props['mu']**0.2*self.CEArun()['Cp'])/(Pr**0.6))*(self.combustion_props['p_0']/c_t)**0.8*(D_t/R_b)**0.1)*(A_t/(np.pi*y_values**2))**0.9*sigma
+            h = ((0.026/(D_t**0.2))*((self.bartz_props['mu']**0.2*self.CEArun()['Cp'])/(Pr**0.6))*(self.combustion_props['p_c']/c_t)**0.8*(D_t/R_b)**0.1)*(A_t/(np.pi*y_values**2))**0.9*sigma
             return h
         
         
@@ -264,12 +263,3 @@ class ChamberSizing:
             'Sigma': sigma
         }
         return dictionary
-
-
-
-
-        
-
-
-
-
