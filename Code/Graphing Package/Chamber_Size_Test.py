@@ -13,19 +13,31 @@ class Chamber:
             'F': F,                     # Thrust force [N]
             'OF_ratio': OF_ratio,       # Oxidizer/fuel ratio
             'p_c':p_c,                  # Stagnation pressure at the combustion chamber [Pa]
-            'T_c': CEAvalues['T_c'],
-            'cstar': CEAvalues['cstar'],
-            'v_e': CEAvalues['v_e'],
-            'eps': CEAvalues['eps'],
+            'T_c': CEAvalues['T_c'],    # Chamber temperature 
+            'cstar': CEAvalues['cstar'],# cstar
+            'v_e': CEAvalues['v_e'],    # Exit velocity
+            'eps': CEAvalues['eps'],    # Optimal expansion ratio
             #calculate R, Cv, Cp, gamma, Exit velocity
             }
 
+        GEOvalues = self.geocalc()
         self.geometric_props = {
             'R_c': R_c,                 # Radius of combustion chamber [m]
             'L_characteristic': L_characteristic, # Characteristic length
             'Theta_c': Theta_c,         # Angle of converging section
             'Theta_e': -Theta_e,        # Angle of diverging section
             'spray_angle': spray_angle, # Spray angle
+            'm_dot': GEOvalues['m_dot'],
+            'A_t': GEOvalues['A_t'],
+            'eps_c': GEOvalues['eps_c'],
+            'V_c': GEOvalues['V_c'],
+            'L_c': GEOvalues['L_c'],
+            'R_t': GEOvalues['R_t'],
+            'R_e': GEOvalues['R_e'],
+            'R_b': GEOvalues['R_b'],
+            'R_s': GEOvalues['R_s'],
+            'R_pintle': GEOvalues['R_pintle'],
+            'L_pintle': GEOvalues['L_pintle'],
             }
         
         self.bartz_props = {
@@ -35,9 +47,12 @@ class Chamber:
             'M': M,
             }
         
-        self.geocalc() #this line
-        CEA_Output = self.CEArun()
-        self.m_dot = m_dot
+        GASvalues = self.gascalc()
+        self.gas_props = {
+            'Cv': GASvalues['Cv'],
+            'R': GASvalues['R'],
+        }
+        
         self.injector = Injector_Code_Test.Injector(d_c,rho_r,rho_z,d1,d2,C_d,delta_P,delta_P_o,mdot) #injector object is being passed into the chamber class
 
         #add a function that calculates the mass flow 
@@ -83,7 +98,6 @@ class Chamber:
             return (ceadict)
             
     
-    
     def geocalc(self):
         m_dot = self.combustion_props['F']/self.CEArun()['v_e']  # Needed mass flow for the required thrust
         A_t = self.m_dot/(self.combustion_props['p_c']/np.sqrt(self.CEArun()['T_0'])*np.sqrt(self.CEArun()['gamma']/R*(2/(self.CEArun()['gamma']+1))**((self.CEArun()['gamma']+1)/(self.CEArun()['gamma']-1))))
@@ -108,18 +122,49 @@ class Chamber:
         R_pintle = self.geometric_props['R_c']/4  # Pintle radius
         L_pintle = self.L_c/3  # Pintle length
 
+        geodict = {
+            'm_dot': m_dot,
+            'A_t': A_t,
+            'eps_c': eps_c,
+            'V_c': V_c,
+            'L_c': L_c,
+            'R_t': R_t,
+            'R_e': R_e,
+            'R_b': R_b,
+            'R_s': R_s,
+            'R_pintle': R_pintle,
+            'L_pintle': L_pintle,
+        }
+
+        return(geodict)
+
     def Bartzcalc(self):
         D_t = 2*self.R_t
         Pr = 4*self.CEArun()['gamma']/(9*self.CEArun()['gamma']-5) # prandtl number given in Bartz paper
         c_t = np.sqrt((1/self.CEArun()['gamma'])*((self.CEArun()['gamma']+1)/2)**((self.CEArun()['gamma']+1)/(self.CEArun()['gamma']-1))*R*self.CEArun()['T_0']) # characteristic velocity
         T_w = self.CEArun()['T_0']                # assume for now
         sigma = 1/((1/2)*(self.T_w/self.CEArun()['T_0'])*(1+((self.CEArun()['gamma']-1)/2)*self.bartz_props['M']**2)+1/2)**(0.8-(self.bartz_props['w']/5))*(1+((self.CEArun()['gamma']-1)/2)*self.bartz_props['M']**2)**(self.bartz_props['w']/5) # dimensionless factor
+
+        bartzdict = {
+            'D_t': D_t,
+            'Pr': Pr,
+            'c_t': c_t,
+            'T_w': T_w,
+            'sigma': sigma,
+        }
+
+        return(bartzdict)
     
-    def values(self):
+    def gascalc(self):
         Cv = self.CEArun()['Cp']/self.CEArun()['gamma']
         R = self.CEArun()['Cp']-Cv              # Specific gas constant
         
-        return Cv, R
+        gasdict = {
+            'Cv': Cv,
+            'R': R,
+        }
+
+        return(gasdict)
         
     def plot(self):
         
