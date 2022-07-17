@@ -6,17 +6,22 @@ from rocketcea.cea_obj import CEA_Obj
 
 class Chamber:
     
-    def __init__(self, oxidizer, fuel, F, OF_ratio, p_c, R_c, L_characteristic, Theta_c, Theta_e, spray_angle, mu, m, w, M):
+    def __init__(self, oxidizer, fuel, F, OF_ratio, p_c, R_c, L_characteristic, Theta_c, Theta_e, spray_angle, mu, m, w, M): #def __init__(self, oxidizer, fuel, F, OF_ratio, p_c, R_c, L_characteristic, Theta_c, Theta_e, spray_angle, mu, m, w, M):
 
         CEAvalues = self.CEArun()
+        GASvalues = self.gascalc()
         self.combustion_props = {
             'F': F,                     # Thrust force [N]
             'OF_ratio': OF_ratio,       # Oxidizer/fuel ratio
             'p_c':p_c,                  # Stagnation pressure at the combustion chamber [Pa]
+            'oxidizer': oxidizer,       # Propellant oxidizer
+            'fuel': fuel,               # Propellant fuel
             'T_c': CEAvalues['T_c'],    # Chamber temperature 
             'cstar': CEAvalues['cstar'],# cstar
             'v_e': CEAvalues['v_e'],    # Exit velocity
             'eps': CEAvalues['eps'],    # Optimal expansion ratio
+            'Cv': GASvalues['Cv'],
+            'R': GASvalues['R'],
             #calculate R, Cv, Cp, gamma, Exit velocity
             }
 
@@ -27,31 +32,32 @@ class Chamber:
             'Theta_c': Theta_c,         # Angle of converging section
             'Theta_e': -Theta_e,        # Angle of diverging section
             'spray_angle': spray_angle, # Spray angle
-            'm_dot': GEOvalues['m_dot'],
-            'A_t': GEOvalues['A_t'],
-            'eps_c': GEOvalues['eps_c'],
-            'V_c': GEOvalues['V_c'],
-            'L_c': GEOvalues['L_c'],
-            'R_t': GEOvalues['R_t'],
-            'R_e': GEOvalues['R_e'],
-            'R_b': GEOvalues['R_b'],
-            'R_s': GEOvalues['R_s'],
-            'R_pintle': GEOvalues['R_pintle'],
-            'L_pintle': GEOvalues['L_pintle'],
+            'm_dot': GEOvalues['m_dot'],# Mass flow rate
+            'A_t': GEOvalues['A_t'],    # Throat area
+            'eps_c': GEOvalues['eps_c'],# compression ratio
+            'V_c': GEOvalues['V_c'],    # Volume of combustion chamber
+            'L_c': GEOvalues['L_c'],    # Length of combustion chamber
+            'R_t': GEOvalues['R_t'],    # Throat radius
+            'R_e': GEOvalues['R_e'],    # Exit radius
+            'R_b': GEOvalues['R_b'],    # Radius of bigger arc, usually 1.5 times the throat radius
+            'R_s': GEOvalues['R_s'],    # Radius of smaller arc, usually 0.4 times the throat radius
+            'R_pintle': GEOvalues['R_pintle'],  #Pintle radius
+            'L_pintle': GEOvalues['L_pintle'],  #Pintle length
             }
         
+        BARTZvalues = self.Bartzcalc()
         self.bartz_props = {
             'mu': mu, 
             'm': m,
             'w': w,
             'M': M,
+            'D_t': BARTZvalues['D_t'],
+            'Pr': BARTZvalues['Pr'],
+            'c_t': BARTZvalues['c_t'],
+            'T_w': BARTZvalues['T_w'],
+            'sigma': BARTZvalues['sigma'],
             }
         
-        GASvalues = self.gascalc()
-        self.gas_props = {
-            'Cv': GASvalues['Cv'],
-            'R': GASvalues['R'],
-        }
         
         self.injector = Injector_Code_Test.Injector(d_c,rho_r,rho_z,d1,d2,C_d,delta_P,delta_P_o,mdot) #injector object is being passed into the chamber class
 
@@ -61,7 +67,7 @@ class Chamber:
         
             # C = CEA_Obj( oxName='LOX', fuelName='JetA', isp_units='m/s', cstar_units='m/s', temperature_units='K')
 
-            C = CEA_Obj(oxName=self.oxidizer, fuelName=self.fuel)
+            C = CEA_Obj(oxName=self.geometric_props['oxidizer'], fuelName=self.geometric_props['fuel'])
 
             # print("O/F, Isp(m/s), Cstar(m/s), Temp(K)")
 
@@ -74,7 +80,7 @@ class Chamber:
 
                 # print(f"{of_ratio:.2f}     {Isp_th:.0f}      {Cstar:.0f}        {Tc:.0f}   {C.get_PcOvPe(Pc=Pc, MR=2, eps=eps):.0f}")
 
-                Isp, mode = C.estimate_Ambient_Isp(Pc=self.p_c, MR=self.OF_ratio, eps=eps, Pamb=14.7)
+                Isp, mode = C.estimate_Ambient_Isp(Pc=self.combustion_props['p_c'], MR=self.combustion_props['OF_ratio'], eps=eps, Pamb=14.7)
                 if Isp > max_Isp:
                     max_Isp = Isp
                     opt_eps = eps
@@ -84,14 +90,13 @@ class Chamber:
             cstar = C.get_Cstar(Pc=p_c)
             Temps = C.get_Temperatures(Pc=self.p_c,MR=self.OF_ratio,eps=opt_eps)
             T_c = Temps[0]
-            v_e = max_Isp
-            eps = opt_eps   
+            v_e = max_Isp  
 
             ceadict = {
                 'cstar': cstar,
                 'T_c': T_c,
                 'v_e': v_e,
-                'eps': eps,
+                'eps': opt_eps,
 
             }
 
@@ -271,43 +276,43 @@ class Chamber:
         ax_h.set_ylabel('Heat flux $[W/m^2]$', fontsize = 18)
         plt.show(block=False)
     
-    def print_values(self):
+    # def print_values(self):
 
-        Cv, R, m_dot, A_t, eps_c, V_c, L_c, R_t, R_e, R_b, R_s, R_pintle, L_pintle, Pr, c_t, T_w, sigma =self.values()
+    #     Cv, R, m_dot, A_t, eps_c, V_c, L_c, R_t, R_e, R_b, R_s, R_pintle, L_pintle, Pr, c_t, T_w, sigma =self.values()
 
-        print(f'Cv                        = {Cv}')
-        print(f'R                         = {R}')
-        print(f'm_dot                     = {m_dot}')
-        print(f'Throat area               = {A_t}')
-        print(f'compression ratio         = {eps_c}')
-        print(f'Combustion chamber volume = {V_c}')
-        print(f'Combustion chamber length = {L_c}')
-        print(f'Throat radius             = {R_t}')
-        print(f'Exit radius               = {R_e}')
-        print(f'Pintle radius             = {R_pintle}')
-        print(f'Pintle length             = {L_pintle}')
-        print()
-        print(f'~~~~~ Bartz equation ~~~~~')
-        print(f'Prandtl number            = {Pr}')
-        print(f'Characteristic velocity   = {c_t}')
-        print(f'Sigma                     = {sigma}')
+    #     print(f'Cv                        = {Cv}')
+    #     print(f'R                         = {R}')
+    #     print(f'm_dot                     = {m_dot}')
+    #     print(f'Throat area               = {A_t}')
+    #     print(f'compression ratio         = {eps_c}')
+    #     print(f'Combustion chamber volume = {V_c}')
+    #     print(f'Combustion chamber length = {L_c}')
+    #     print(f'Throat radius             = {R_t}')
+    #     print(f'Exit radius               = {R_e}')
+    #     print(f'Pintle radius             = {R_pintle}')
+    #     print(f'Pintle length             = {L_pintle}')
+    #     print()
+    #     print(f'~~~~~ Bartz equation ~~~~~')
+    #     print(f'Prandtl number            = {Pr}')
+    #     print(f'Characteristic velocity   = {c_t}')
+    #     print(f'Sigma                     = {sigma}')
 
-    def dict_values(self):
-        Cv, R, m_dot, A_t, eps_c, V_c, L_c, R_t, R_e, R_b, R_s, R_pintle, L_pintle, Pr, c_t, T_w, sigma = self.values()
-        dictionary = {
-            'Cv': Cv,
-            'R': R,
-            'm_dot': m_dot,
-            'Throat area': A_t,
-            'compression ratio': eps_c,
-            'Combustion chamber volume': V_c,
-            'Combustion chamber length': L_c,
-            'Throat radius': R_t,
-            'Exit radius': R_e,
-            'Pintle radius': R_pintle,
-            'Pintle length': L_pintle,
-            'Prandtl number': Pr,
-            'Characteristic velocity': c_t,
-            'Sigma': sigma
-        }
-        return dictionary
+    # def dict_values(self):
+    #     Cv, R, m_dot, A_t, eps_c, V_c, L_c, R_t, R_e, R_b, R_s, R_pintle, L_pintle, Pr, c_t, T_w, sigma = self.values()
+    #     dictionary = {
+    #         'Cv': Cv,
+    #         'R': R,
+    #         'm_dot': m_dot,
+    #         'Throat area': A_t,
+    #         'compression ratio': eps_c,
+    #         'Combustion chamber volume': V_c,
+    #         'Combustion chamber length': L_c,
+    #         'Throat radius': R_t,
+    #         'Exit radius': R_e,
+    #         'Pintle radius': R_pintle,
+    #         'Pintle length': L_pintle,
+    #         'Prandtl number': Pr,
+    #         'Characteristic velocity': c_t,
+    #         'Sigma': sigma
+    #     }
+    #     return dictionary
