@@ -4,18 +4,16 @@ import Injector_Code_Test
 from rocketcea.cea_obj import CEA_Obj
 
 
-class Chamber:
-    
-    def __init__(self, oxidizer, fuel, F, OF_ratio, p_c, R_c, L_characteristic, Theta_c, Theta_e, spray_angle, mu, m, w, M): #def __init__(self, oxidizer, fuel, F, OF_ratio, p_c, R_c, L_characteristic, Theta_c, Theta_e, spray_angle, mu, m, w, M):
 
+class Chamber:
+    # def __init__(self, propellants, thrust, OF, p_c, chamber, injector): this is the constructor for the TCA class
+
+    def __init__(self, combustion_props, geometric_props, bartz_props): #def __init__(self, oxidizer, fuel, F, OF_ratio, p_c, R_c, L_characteristic, Theta_c, Theta_e, spray_angle, mu, m, w, M):
+
+        self.combustion_props = combustion_props
         CEAvalues = self.CEArun()
         GASvalues = self.gascalc()
         self.combustion_props = {
-            'F': F,                     # Thrust force [N]
-            'OF_ratio': OF_ratio,       # Oxidizer/fuel ratio
-            'p_c':p_c,                  # Stagnation pressure at the combustion chamber [Pa]
-            'oxidizer': oxidizer,       # Propellant oxidizer
-            'fuel': fuel,               # Propellant fuel
             'T_c': CEAvalues['T_c'],    # Chamber temperature 
             'cstar': CEAvalues['cstar'],# cstar
             'v_e': CEAvalues['v_e'],    # Exit velocity
@@ -25,6 +23,7 @@ class Chamber:
             #calculate R, Cv, Cp, gamma, Exit velocity
             }
 
+        self.geometric_props = geometric_props
         GEOvalues = self.geocalc()
         self.geometric_props = {
             'R_c': R_c,                 # Radius of combustion chamber [m]
