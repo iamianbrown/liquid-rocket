@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from rocketcea.cea_obj import CEA_Obj
+import Chamber_Size_Test
 
 #Thrust Chamber Assembly Class
 class TCA:
@@ -19,7 +20,7 @@ class TCA:
         self.T_c = CEAvalues['T_c']
         self.cstar = CEAvalues['cstar']
 
-        
+
 
 #   ------------------------------------------- CEArun Stuff -------------------------------------------
 
@@ -62,4 +63,3 @@ class TCA:
                 }
 
                 return (ceadict)
-        
