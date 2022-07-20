@@ -5,7 +5,6 @@ from rocketcea.cea_obj import CEA_Obj
 from TCA import *
 
 
-
 class Chamber:
     # def __init__(self, propellants, thrust, OF, p_c, chamber, injector): this is the constructor for the TCA class
     
