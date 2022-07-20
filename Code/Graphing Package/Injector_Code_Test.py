@@ -15,28 +15,8 @@ class Injector:
     def __init__(self, TCAobj, CHAMBERobj, injector_props):  
         self.TCAobj = TCAobj
         self.Chamberobj = CHAMBERobj
-        self.injector_props = injector_props
+        self.injector_props = injector_props #user will pass this in as a dictionary with the values for d_c, rho_r, rho_z, d1, d2, C_d, delta_P, delta_P_o
 
-        
-        
-      
-        
-    # def pintleParams(cea_data, gap_size, d_o, P_c):
-    #     # cea_data is a list containing all relevant CEARUN parameters (T, OF, V_exit)
-    #     # calculate the following parameters
-    #     return theta, delta_p, BF, mdot_t
-
-    P_c = 300 * 6894.76  # CHAMBER PRESSURE (Pascals)
-    mdot_t = 1.989416305  # TOTAL MASS FLOW RATE (kg/s)
-    OF = 3  # OXIDIZER TO FUEL RATIO
-    d_c = .13  # CHAMBER DIAMETER (m)
-    rho_r = 1141  # RADIAL PROPELLANT DENSITY (kg/m^3)
-    rho_z = 810  # AXIAL PROPELLANT DENSITY (kg/m^3)
-    d1 = 1.3  # ORIFICE ROW 1 DIAMETER (mm)
-    d2 = 1.3  # ORIFICE ROW 2 DIAMETER (mm)
-    C_d = 0.75  # DISCHARGE COEFFICIENT
-    delta_P = 0.25 * P_c  # FUEL PRESSURE DROP
-    delta_P_o = 0.15 * P_c  # OXIDIZER PRESSURE DROP
 
     # Calculate radial and axial propellant mass flow rates
     mdot_r = mdot_t / (1 + OF) * OF
