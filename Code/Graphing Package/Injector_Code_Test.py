@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import TCA
+import Chamber_Size_Test
 
 
 class Injector:
@@ -10,26 +12,19 @@ class Injector:
     _z designates axial propellant
     '''
 
-    def __init__(self, chamber, d_c, rho_r, rho_z, d1, d2, C_d, delta_P, delta_P_o):  
-        self.p_c = chamber.combustion_props['p_c']
-        self.mdot_t = chamber.dict_values()['m_dot']
-        self.OF_ratio = chamber.combustion_props['OF_ratio']
+    def __init__(self, TCAobj, CHAMBERobj, injector_props):  
+        self.TCAobj = TCAobj
+        self.Chamberobj = CHAMBERobj
+        self.injector_props = injector_props
+
         
-        self.injector_props = {
-            'd_c': d_c,
-            'rho_r': rho_r,
-            'rho_z': rho_z,
-            'd1': d1,
-            'd2': d2,
-            'C_d': C_d,
-            'delta_P': delta_P,
-            'delta_P_o': delta_P_o
-        }
         
-    def pintleParams(cea_data, gap_size, d_o, P_c):
-        # cea_data is a list containing all relevant CEARUN parameters (T, OF, V_exit)
-        # calculate the following parameters
-        return theta, delta_p, BF, mdot_t
+      
+        
+    # def pintleParams(cea_data, gap_size, d_o, P_c):
+    #     # cea_data is a list containing all relevant CEARUN parameters (T, OF, V_exit)
+    #     # calculate the following parameters
+    #     return theta, delta_p, BF, mdot_t
 
     P_c = 300 * 6894.76  # CHAMBER PRESSURE (Pascals)
     mdot_t = 1.989416305  # TOTAL MASS FLOW RATE (kg/s)
@@ -114,104 +109,3 @@ class Injector:
 
     LMR = (rho_r * (U_r ** 2) * A_lr) / (rho_z * (U_z ** 2) * A_lz)
     theta = (alpha * np.arctan(beta * LMR) * (180 / np.pi)) + 20
-
-    fig, axs = plt.subplots(2, 1, figsize=(12, 12))
-    fig.suptitle('LMR and Theta vs annular gap')
-
-    axs[0].plot(a, LMR)
-    axs[1].plot(a, theta)
-
-    axs[0].set_xlabel('annular gap size')
-    axs[0].set_ylabel('LMR')
-    axs[1].set_xlabel('annular gap size')
-    axs[1].set_ylabel('spray angle')
-    axs[0].locator_params(axis="x", nbins=15)
-    axs[0].locator_params(axis="y", nbins=15)
-    axs[1].locator_params(axis="x", nbins=15)
-    axs[1].locator_params(axis="y", nbins=20)
-    axs[0].set_xlim(a[0])
-    axs[1].set_xlim(a[0])
-    axs[0].set_ylim(0)
-    axs[1].set_ylim(0)
-
-    # --------------------------------LMR AND THETA TOLERANCED VALES---------------------------------------#
-
-    LMR_low = np.interp(((gap / 1000) - gap_tolerance), a, LMR)
-    LMR_high = np.interp(((gap / 1000) + gap_tolerance), a, LMR)
-
-    theta_low = alpha * np.arctan(beta * LMR_low) * (180 / np.pi) + 20
-    theta_high = alpha * np.arctan(beta * LMR_high) * (180 / np.pi) + 20
-
-    axs[0].vlines(x=gap / 1000, label='With gap determined by DA eqn', linewidth=1, linestyle='dashed', color='red',
-                  ymin=0, ymax=LMR_c)
-    axs[0].vlines(x=(gap / 1000) - gap_tolerance, linewidth=1, linestyle='dashed', color='red', ymin=0, ymax=LMR_low)
-    axs[0].vlines(x=(gap / 1000) + gap_tolerance, linewidth=1, linestyle='dashed', color='red', ymin=0, ymax=LMR_high)
-
-    axs[1].vlines(x=gap / 1000, label='With gap determined by DA eqn', linewidth=1, linestyle='dashed', color='red',
-                  ymin=0, ymax=theta_c)
-    axs[1].vlines(x=(gap / 1000) - gap_tolerance, linewidth=1, linestyle='dashed', color='red', ymin=0, ymax=theta_low)
-    axs[1].vlines(x=(gap / 1000) + gap_tolerance, linewidth=1, linestyle='dashed', color='red', ymin=0, ymax=theta_high)
-
-    axs[0].hlines(y=LMR_low, xmin=0, xmax=(gap / 1000) - gap_tolerance, linewidth=1, linestyle='dashed', color='red')
-    axs[0].hlines(y=LMR_high, xmin=0, xmax=(gap / 1000) + gap_tolerance, linewidth=1, linestyle='dashed', color='red')
-    axs[1].hlines(y=theta_low, xmin=0, xmax=(gap / 1000) - gap_tolerance, linewidth=1, linestyle='dashed', color='red')
-    axs[1].hlines(y=theta_high, xmin=0, xmax=(gap / 1000) + gap_tolerance, linewidth=1, linestyle='dashed', color='red')
-    axs[0].hlines(y=LMR_c, xmin=0, xmax=(gap / 1000), linewidth=1, linestyle='dashed', color='red')
-    axs[1].hlines(y=theta_c, xmin=0, xmax=(gap / 1000), linewidth=1, linestyle='dashed', color='red')
-
-
-
-    # # ----------------------------WHAT WE WANT-----------------------------#
-    #
-    # gap_opt = np.interp(65, theta, a)
-    # gap_opt_low = gap_opt - gap_tolerance
-    # gap_opt_high = gap_opt + gap_tolerance
-    #
-    # LMR_opt = np.interp(gap_opt, a, LMR)
-    # LMR_opt_low = np.interp(gap_opt_low, a, LMR)
-    # LMR_opt_high = np.interp(gap_opt_high, a, LMR)
-    #
-    # theta_opt = np.interp(gap_opt, a, theta)
-    # theta_opt_low = np.interp(gap_opt_low, a, theta)
-    # theta_opt_high = np.interp(gap_opt_high, a, theta)
-    #
-    # axs[0].vlines(x=gap_opt, linewidth=1, linestyle='dashed', color='green', ymin=0, ymax=LMR_opt)
-    # axs[0].vlines(x=gap_opt_low, linewidth=1, linestyle='dashed', color='green', ymin=0, ymax=LMR_opt_low)
-    # axs[0].vlines(x=gap_opt_high, linewidth=1, linestyle='dashed', color='green', ymin=0, ymax=LMR_opt_high)
-    # axs[0].hlines(y=LMR_opt, label='With gap adjusted for desired spray angle', xmin=0, xmax=gap_opt, linewidth=1,
-    #               linestyle='dashed', color='green')
-    # axs[0].hlines(y=LMR_opt_low, xmin=0, xmax=gap_opt_low, linewidth=1, linestyle='dashed', color='green')
-    # axs[0].hlines(y=LMR_opt_high, xmin=0, xmax=gap_opt_high, linewidth=1, linestyle='dashed', color='green')
-    #
-    # axs[1].vlines(x=gap_opt, linewidth=1, linestyle='dashed', color='green', ymin=0, ymax=theta_opt)
-    # axs[1].vlines(x=gap_opt_low, linewidth=1, linestyle='dashed', color='green', ymin=0, ymax=theta_opt_low)
-    # axs[1].vlines(x=gap_opt_high, linewidth=1, linestyle='dashed', color='green', ymin=0, ymax=theta_opt_high)
-    # axs[1].hlines(y=theta_opt, label='With gap adjusted for desired spray angle', xmin=0, xmax=gap_opt, linewidth=1,
-    #               linestyle='dashed', color='green')
-    # axs[1].hlines(y=theta_opt_low, xmin=0, xmax=gap_opt_low, linewidth=1, linestyle='dashed', color='green')
-    # axs[1].hlines(y=theta_opt_high, xmin=0, xmax=gap_opt_high, linewidth=1, linestyle='dashed', color='green')
-
-    axs[0].legend(loc='lower right')
-    axs[1].legend(loc='lower right')
-
-    plt.show()
-
-    # ------------------------------------------OUTPUTS------------------------------------------------#
-
-    print('Radial discharge area = {} mm^2'.format(round(A_r_mm, 2)))
-    print('Axial discharge area = {} mm^2'.format(round(A_z_mm, 2)))
-    print('Number of orifice pairs = {}'.format(n_orifice_pairs))
-    print('Orifice area percent error = {}%'.format(round(percent_error, 2)))
-    print('BF = {}'.format(round(BF, 2)))
-    print('------------------------------------------')
-    print('USING THE DISCHARGE AREA EQUATION:')
-    print('Gap size = {}mm < {}mm < {}mm'.format(round(gap_low, 3), round(gap, 3), round(gap_high, 3)))
-    print('LMR = {} < {} < {}'.format(round(LMR_low, 3), round(LMR_c, 3), round(LMR_high, 3)))
-    print('Spray Angle = {}deg < {}deg < {}deg'.format(round(theta_low, 2), round(theta_c, 2), round(theta_high, 2)))
-    # print('------------------------------------------')
-    # print('FOR CHOICE OF SPRAY ANGLE')
-    # print('Gap size = {}mm < {}mm <{}mm'.format(round(gap_opt_low * 1000, 3), round(gap_opt * 1000, 3),
-    #                                             round(gap_opt_high * 1000, 3)))
-    # print('LMR = {} < {} < {}'.format(round(LMR_opt_low, 3), round(LMR_opt, 3), round(LMR_opt_high, 3)))
-    # print('Spray Angle = {}deg < {}deg < {}deg'.format(round(theta_opt_low, 2), round(theta_opt, 2),
-    #                                                    round(theta_opt_high, 2)))

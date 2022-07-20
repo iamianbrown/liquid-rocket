@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from rocketcea.cea_obj import CEA_Obj
 import Chamber_Size_Test
+import Injector_Code_Test
 
 #Thrust Chamber Assembly Class
 class TCA:
@@ -19,6 +20,10 @@ class TCA:
         self.v_e = CEAvalues['v_e']
         self.T_c = CEAvalues['T_c']
         self.cstar = CEAvalues['cstar']
+        self.gamma = CEAvalues['gamma']
+        self.Cp = CEAvalues['Cp']
+        self.Cv = CEAvalues['Cv']
+        self.R = CEAvalues['R']
 
 
 
@@ -50,16 +55,25 @@ class TCA:
 
                 cstar = C.get_Cstar(Pc=p_c)
                 Temps = C.get_Temperatures(Pc=self.p_c,MR=self.OF_ratio,eps=opt_eps)
+                mw_gamma_chamber = C.get_Chamber_MolWt_gamma(Pc=self.p_c, MR=self.OF_ratio, eps = opt_eps)
+                gamma = mw_gamma_chamber[1]
                 T_c = Temps[0]
                 v_e = max_Isp  
                 mdot = self.F/v_e
+                Cp = C.get_Chamber_Cp(Pc=self.p_c, MR=self.OF_ratio, eps=opt_eps)
+                Cv = Cp/gamma
+                R = Cp-Cv
 
                 ceadict = {
                     'cstar': cstar,
                     'T_c': T_c,
                     'v_e': v_e,
                     'eps': opt_eps,
-                    'mdot': mdot
+                    'mdot': mdot,
+                    'gamma': gamma,
+                    'Cp': Cp,
+                    'Cv': Cv,
+                    'R': R
                 }
 
                 return (ceadict)

@@ -4,13 +4,11 @@ import Injector_Code_Test
 from rocketcea.cea_obj import CEA_Obj
 import TCA
 
-# TEST = self.TCA.mdot
-# test = TCA(self.TCAobj).mdot
 
 class Chamber:
-    # def __init__(self, propellants, thrust, OF, p_c, chamber, injector): this is the constructor for the TCA class
     
-    def __init__(self, TCAobj, geometric_props, bartz_props): #def __init__(self, oxidizer, fuel, F, OF_ratio, p_c, R_c, L_characteristic, Theta_c, Theta_e, spray_angle, mu, m, w, M):
+    
+    def __init__(self, TCAobj, geometric_props, bartz_props): 
         
         self.TCAobj = TCAobj 
 
@@ -29,7 +27,7 @@ class Chamber:
             'R_pintle': GEOvalues['R_pintle'],  #Pintle radius
             'L_pintle': GEOvalues['L_pintle'],  #Pintle length
             }
-        geomerge.update(self.geometric_props)
+        geomerge.update(self.geometric_props) 
         
         self.bartz_props = bartz_props
         # bartz_props should be an input dictionary containing mu, m, w, M
@@ -45,30 +43,29 @@ class Chamber:
         
     
     def geocalc(self):
-        A_t = self.m_dot/(self.combustion_props['p_c']/np.sqrt(self.CEArun()['T_0'])*np.sqrt(self.CEArun()['gamma']/R*(2/(self.CEArun()['gamma']+1))**((self.CEArun()['gamma']+1)/(self.CEArun()['gamma']-1))))
+        A_t = TCA(self.TCAobj).mdot/(TCA(self.TCAobj).p_c/np.sqrt(TCA(self.TCAobj).T_c)*np.sqrt(TCA(self.TCAobj).gamma/R*(2/(TCA(self.TCAobj).gamma+1))**((TCA(self.TCAobj).gamma+1)/(TCA(self.TCAobj).gamma-1))))
 
         # The compression ratio will be
-        eps_c = (np.pi*self.geometric_props['R_c']**2)/self.A_t
+        eps_c = (np.pi*self.geometric_props['R_c']**2)/A_t
 
-        V_c = self.geometric_props['L_characteristic']*self.A_t # Volume of combustion chamber [m^3]
+        V_c = self.geometric_props['L_characteristic']*A_t # Volume of combustion chamber [m^3]
 
         # If we want the combustion chamber radius to be R_c , then we need a
         # length:
-        L_c = self.V_c/(np.pi*self.geometric_props['R_c']**2) # Length of combustion chamber
+        L_c = V_c/(np.pi*self.geometric_props['R_c']**2) # Length of combustion chamber
 
         ## STEP 3: GEOMETRICAL PARAMETERS FOR THE NOZZLE
 
-        R_t = np.sqrt(self.A_t/np.pi)  # Throat radius
-        R_e = np.sqrt(self.CEArun()['eps'])*self.R_t  # Exit radius
+        R_t = np.sqrt(A_t/np.pi)  # Throat radius
+        R_e = np.sqrt(TCA(self.TCAobj).eps)*R_t  # Exit radius
 
-        R_b = 1.5*self.R_t     # Radius of bigger arc, usually 1.5 times the throat radius
-        R_s = 0.4*self.R_t     # Radius of smaller arc, usually 0.4 times the throat radius
+        R_b = 1.5*R_t     # Radius of bigger arc, usually 1.5 times the throat radius
+        R_s = 0.4*R_t     # Radius of smaller arc, usually 0.4 times the throat radius
 
         R_pintle = self.geometric_props['R_c']/4  # Pintle radius
-        L_pintle = self.L_c/3  # Pintle length
+        L_pintle = L_c/3  # Pintle length
 
         geodict = {
-            'm_dot': m_dot,
             'A_t': A_t,
             'eps_c': eps_c,
             'V_c': V_c,
@@ -84,11 +81,12 @@ class Chamber:
         return(geodict)
 
     def Bartzcalc(self):
-        D_t = 2*self.R_t
-        Pr = 4*self.CEArun()['gamma']/(9*self.CEArun()['gamma']-5) # prandtl number given in Bartz paper
-        c_t = np.sqrt((1/self.CEArun()['gamma'])*((self.CEArun()['gamma']+1)/2)**((self.CEArun()['gamma']+1)/(self.CEArun()['gamma']-1))*R*self.CEArun()['T_0']) # characteristic velocity
-        T_w = self.CEArun()['T_0']                # assume for now
-        sigma = 1/((1/2)*(self.T_w/self.CEArun()['T_0'])*(1+((self.CEArun()['gamma']-1)/2)*self.bartz_props['M']**2)+1/2)**(0.8-(self.bartz_props['w']/5))*(1+((self.CEArun()['gamma']-1)/2)*self.bartz_props['M']**2)**(self.bartz_props['w']/5) # dimensionless factor
+        GEOvaleus = self.geocalc()
+        D_t = 2*GEOvaleus['R_t']
+        Pr = 4*TCA(self.TCAobj).gamma/(9*TCA(self.TCAobj).gamma - 5) # prandtl number given in Bartz paper
+        c_t = np.sqrt((1/TCA(self.TCAobj).gamma)*((TCA(self.TCAobj).gamma+1)/2)**((TCA(self.TCAobj).gamma+1)/(TCA(self.TCAobj).gamma-1))*R*TCA(self.TCAobj).T_c) # characteristic velocity
+        T_w = TCA(self.TCAobj).T_c                # assume for now
+        sigma = 1/((1/2)*(T_w/TCA(self.TCAobj).T_c)*(1+((TCA(self.TCAobj).gamma-1)/2)*self.bartz_props['M']**2)+1/2)**(0.8-(self.bartz_props['w']/5))*(1+((TCA(self.TCAobj).gamma-1)/2)*self.bartz_props['M']**2)**(self.bartz_props['w']/5) # dimensionless factor
 
         bartzdict = {
             'D_t': D_t,
@@ -100,159 +98,4 @@ class Chamber:
 
         return(bartzdict)
     
-    # def gascalc(self):
-    #     Cv = self.CEArun()['Cp']/self.CEArun()['gamma']
-    #     R = self.CEArun()['Cp']-Cv              # Specific gas constant
         
-    #     gasdict = {
-    #         'Cv': Cv,
-    #         'R': R,
-    #     }
-
-    #     return(gasdict)
-        
-    # def plot(self):
-        
-    #     Cv, R, m_dot, A_t, eps_c, V_c, L_c, R_t, R_e, R_b, R_s, R_pintle, L_pintle, Pr, c_t, T_w, sigma = self.values()
-        
-    #     def atan(angle):
-    #         return np.tan(angle*np.pi/180)
-    #     def asin(angle):
-    #         return np.sin(angle*np.pi/180)
-    #     def acos(angle):
-    #         return np.cos(angle*np.pi/180)
-
-    #     def circle(x, R):    
-    #         return (-np.sqrt(R**2-x**2)+(R+R_t))
-        
-    #     def pintle_end(x):
-    #         return np.sqrt(R_pintle**2-(x-(chamber_end+L_pintle))**2)
-
-    #     y0 = R_t
-    #     x0 = 0
-
-    #     y1 = R_e
-    #     x1 = -(y1 - y0 + x0*atan(self.geometric_props['Theta_e']))/atan(self.geometric_props['Theta_e'])
-
-    #     ym1 = self.geometric_props['R_c']
-    #     xm1 = -(ym1 - y0 + x0*atan(self.geometric_props['Theta_c']))/atan(self.geometric_props['Theta_c'])
-
-    #     ym2 = ym1
-    #     xm2 = -L_c +(ym2 - ym1 + xm1*atan(self.geometric_props['Theta_c']))/atan(self.geometric_props['Theta_c'])
-
-    #     xb = np.linspace(-R_b*asin(self.geometric_props['Theta_c']),0,50)  # Horizontal limits of big arc as function of Theta_c
-    #     xs = np.linspace(0,R_s*asin(-self.geometric_props['Theta_e']),50)  # Horizontal limits of small arc as function of Theta_e
-
-    #     # Combustion chamber walls
-    #     linex0 = np.linspace(xm2-((ym1+R_b-(R_b*acos(self.geometric_props['Theta_c']))-ym2)/asin(self.geometric_props['Theta_c'])), 
-    #                          xm1-((ym1+R_b-(R_b*acos(self.geometric_props['Theta_c']))-ym2)/asin(self.geometric_props['Theta_c'])), 10)
-    #     liney0 = np.linspace(ym2, 
-    #                          ym1, 10)
-    #     chamber_end = xm2-((ym1+R_b-(R_b*acos(self.geometric_props['Theta_c']))-ym2)/asin(self.geometric_props['Theta_c']))
-
-    #     # Converging nozzle
-    #     linex1 = np.linspace(xm1-R_b*asin(self.geometric_props['Theta_c'])+((ym1+R_b-(R_b*acos(self.geometric_props['Theta_c']))-ym2)/atan(self.geometric_props['Theta_c'])), 
-    #                          x0-R_b*asin(self.geometric_props['Theta_c']), 10)
-    #     liney1 = np.linspace(ym2, 
-    #                          y0+(R_b-R_b*acos(self.geometric_props['Theta_c'])), 10)
-
-    #     # Diverging nozzle
-    #     linex2 = np.linspace(x0+R_s*asin(-self.geometric_props['Theta_e']), 
-    #                          x1+R_s*asin(-self.geometric_props['Theta_e']), 10)
-    #     liney2 = np.linspace(y0+(R_s-R_s*acos(self.geometric_props['Theta_e'])),
-    #                          y1+(R_s-R_s*acos(self.geometric_props['Theta_e'])), 10)
-
-    #     # Spray angle
-    #     spray_angle = abs(90-self.geometric_props['spray_angle']) # Correction
-    #     sprayx = np.linspace(chamber_end+L_pintle,chamber_end+L_pintle+atan(spray_angle)*(self.geometric_props['R_c']-R_pintle),10)
-    #     sprayy = np.linspace(R_pintle, self.geometric_props['R_c'],10)
-
-        
-    #     ###### Bartz
-        
-    #     D_t = 2*R_t
-    #     def Bartz(y_values):
-    #         h = ((0.026/(D_t**0.2))*((self.bartz_props['mu']**0.2*self.CEArun()['Cp'])/(Pr**0.6))*(self.combustion_props['p_c']/c_t)**0.8*(D_t/R_b)**0.1)*(A_t/(np.pi*y_values**2))**0.9*sigma
-    #         return h
-        
-        
-    #     ##### Shared x-axis plots
-        
-    #     fig, (ax_comb, ax_h) = plt.subplots(2, 1, figsize=(12, 12), sharex=True)
-
-    #     ax_comb.plot(linex0, liney0, 'k-')
-    #     ax_comb.plot(linex1, liney1, 'k-')
-    #     ax_comb.plot(linex2, liney2, 'k-')
-    #     ax_comb.plot(linex0, -liney0, 'k-')
-    #     ax_comb.plot(linex1, -liney1, 'k-')
-    #     ax_comb.plot(linex2, -liney2, 'k-')
-
-    #     ax_comb.plot(xb,circle(xb,R_b), 'k-')
-    #     ax_comb.plot(xs,circle(xs,R_s), 'k-')
-    #     ax_comb.plot(xb,-circle(xb,R_b), 'k-')
-    #     ax_comb.plot(xs,-circle(xs,R_s), 'k-')
-
-    #     ax_comb.plot(np.linspace(chamber_end+L_pintle, chamber_end+L_pintle+R_pintle, 50),
-    #              pintle_end(np.linspace(chamber_end+L_pintle, chamber_end+L_pintle+R_pintle, 50)), 'k-')
-    #     ax_comb.plot(np.linspace(chamber_end+L_pintle, chamber_end+L_pintle+R_pintle, 50),
-    #              -pintle_end(np.linspace(chamber_end+L_pintle, chamber_end+L_pintle+R_pintle, 50)), 'k-')
-
-    #     ax_comb.plot(sprayx,sprayy,'b--')
-    #     ax_comb.plot(sprayx,-sprayy,'b--')
-
-    #     ax_comb.hlines(y=R_pintle, xmin = chamber_end, xmax = chamber_end+L_pintle, color = 'black')
-    #     ax_comb.hlines(y=-R_pintle, xmin = chamber_end, xmax = chamber_end+L_pintle, color = 'black')
-
-    #     ax_comb.vlines(x=chamber_end, ymin=-ym2, ymax=ym2, color = 'black')
-    #     ax_comb.vlines(x=chamber_end+L_pintle, ymin = -R_pintle, ymax = R_pintle, color = 'black')
-    #     ax_comb.set_ylabel('Distance $[m]$', fontsize = 18)
-        
-    #     ax_h.plot(linex0, Bartz(liney0), 'k-')
-    #     ax_h.plot(linex1, Bartz(liney1), 'k-')
-    #     ax_h.plot(linex2, Bartz(liney2), 'k-')
-    #     ax_h.plot(xb,Bartz(circle(xb,R_b)), 'k-')
-    #     ax_h.plot(xs,Bartz(circle(xs,R_s)), 'k-')
-    #     ax_h.set_xlabel('Distance $[m]$', fontsize = 18)
-    #     ax_h.set_ylabel('Heat flux $[W/m^2]$', fontsize = 18)
-    #     plt.show(block=False)
-    
-    # def print_values(self):
-
-    #     Cv, R, m_dot, A_t, eps_c, V_c, L_c, R_t, R_e, R_b, R_s, R_pintle, L_pintle, Pr, c_t, T_w, sigma =self.values()
-
-    #     print(f'Cv                        = {Cv}')
-    #     print(f'R                         = {R}')
-    #     print(f'm_dot                     = {m_dot}')
-    #     print(f'Throat area               = {A_t}')
-    #     print(f'compression ratio         = {eps_c}')
-    #     print(f'Combustion chamber volume = {V_c}')
-    #     print(f'Combustion chamber length = {L_c}')
-    #     print(f'Throat radius             = {R_t}')
-    #     print(f'Exit radius               = {R_e}')
-    #     print(f'Pintle radius             = {R_pintle}')
-    #     print(f'Pintle length             = {L_pintle}')
-    #     print()
-    #     print(f'~~~~~ Bartz equation ~~~~~')
-    #     print(f'Prandtl number            = {Pr}')
-    #     print(f'Characteristic velocity   = {c_t}')
-    #     print(f'Sigma                     = {sigma}')
-
-    # def dict_values(self):
-    #     Cv, R, m_dot, A_t, eps_c, V_c, L_c, R_t, R_e, R_b, R_s, R_pintle, L_pintle, Pr, c_t, T_w, sigma = self.values()
-    #     dictionary = {
-    #         'Cv': Cv,
-    #         'R': R,
-    #         'm_dot': m_dot,
-    #         'Throat area': A_t,
-    #         'compression ratio': eps_c,
-    #         'Combustion chamber volume': V_c,
-    #         'Combustion chamber length': L_c,
-    #         'Throat radius': R_t,
-    #         'Exit radius': R_e,
-    #         'Pintle radius': R_pintle,
-    #         'Pintle length': L_pintle,
-    #         'Prandtl number': Pr,
-    #         'Characteristic velocity': c_t,
-    #         'Sigma': sigma
-    #     }
-    #     return dictionary
