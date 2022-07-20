@@ -4,19 +4,22 @@ from rocketcea.cea_obj import CEA_Obj
 
 #Thrust Chamber Assembly Class
 class TCA:
-    def __init__(self, fuel, oxidizer, F, OF_ratio, p_c, chamber, injector):
+    def __init__(self, fuel, oxidizer, F, OF_ratio, p_c):
         
         self.fuel = fuel
         self.oxidizer = oxidizer
         self.F = F
         self.OF_ratio = OF_ratio
         self.p_c = p_c
-
         
         CEAvalues = self.CEArun()
-        self.system_props = {
+        self.mdot = CEAvalues['mdot']
+        self.eps = CEAvalues['eps']
+        self.v_e = CEAvalues['v_e']
+        self.T_c = CEAvalues['T_c']
+        self.cstar = CEAvalues['cstar']
 
-        }
+        
 
 #   ------------------------------------------- CEArun Stuff -------------------------------------------
 
@@ -59,3 +62,4 @@ class TCA:
                 }
 
                 return (ceadict)
+        
