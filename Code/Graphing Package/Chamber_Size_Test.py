@@ -24,8 +24,6 @@ class Chamber:
             'R_e': GEOvalues['R_e'],    # Exit radius
             'R_b': GEOvalues['R_b'],    # Radius of bigger arc, usually 1.5 times the throat radius
             'R_s': GEOvalues['R_s'],    # Radius of smaller arc, usually 0.4 times the throat radius
-            'R_pintle': GEOvalues['R_pintle'],  #Pintle radius
-            'L_pintle': GEOvalues['L_pintle'],  #Pintle length
             }
         geomerge.update(self.geometric_props) 
         
@@ -35,15 +33,24 @@ class Chamber:
         bartzmerge = {
             'D_t': BARTZvalues['D_t'],
             'Pr': BARTZvalues['Pr'],
-            'c_t': BARTZvalues['c_t'],
             'T_w': BARTZvalues['T_w'],
             'sigma': BARTZvalues['sigma'],
             }
         bartzmerge.update(bartz_props)
+
+       
         
     
     def geocalc(self):
-        A_t = TCA(self.TCAobj).mdot/(TCA(self.TCAobj).p_c/np.sqrt(TCA(self.TCAobj).T_c)*np.sqrt(TCA(self.TCAobj).gamma/R*(2/(TCA(self.TCAobj).gamma+1))**((TCA(self.TCAobj).gamma+1)/(TCA(self.TCAobj).gamma-1))))
+        
+        mdot = self.TCAobj.mdot
+        p_c = self.TCAobj.p_c
+        T_c = self.TCAobj.T_c
+        gamma = self.TCAobj.gamma
+        R = self.TCAobj.R
+        eps = self.TCAobj.eps
+        
+        A_t = mdot/(p_c/np.sqrt(T_c)*np.sqrt(gamma/R*(2/(gamma+1))**((gamma+1)/(gamma-1))))
 
         # The compression ratio will be
         eps_c = (np.pi*self.geometric_props['R_c']**2)/A_t
@@ -57,13 +64,10 @@ class Chamber:
         ## STEP 3: GEOMETRICAL PARAMETERS FOR THE NOZZLE
 
         R_t = np.sqrt(A_t/np.pi)  # Throat radius
-        R_e = np.sqrt(TCA(self.TCAobj).eps)*R_t  # Exit radius
+        R_e = np.sqrt(eps)*R_t  # Exit radius
 
         R_b = 1.5*R_t     # Radius of bigger arc, usually 1.5 times the throat radius
         R_s = 0.4*R_t     # Radius of smaller arc, usually 0.4 times the throat radius
-
-        R_pintle = self.geometric_props['R_c']/4  # Pintle radius
-        L_pintle = L_c/3  # Pintle length
 
         geodict = {
             'A_t': A_t,
@@ -74,24 +78,24 @@ class Chamber:
             'R_e': R_e,
             'R_b': R_b,
             'R_s': R_s,
-            'R_pintle': R_pintle,
-            'L_pintle': L_pintle,
         }
 
         return(geodict)
 
     def Bartzcalc(self):
-        GEOvaleus = self.geocalc()
-        D_t = 2*GEOvaleus['R_t']
-        Pr = 4*TCA(self.TCAobj).gamma/(9*TCA(self.TCAobj).gamma - 5) # prandtl number given in Bartz paper
-        c_t = np.sqrt((1/TCA(self.TCAobj).gamma)*((TCA(self.TCAobj).gamma+1)/2)**((TCA(self.TCAobj).gamma+1)/(TCA(self.TCAobj).gamma-1))*R*TCA(self.TCAobj).T_c) # characteristic velocity
-        T_w = TCA(self.TCAobj).T_c                # assume for now
-        sigma = 1/((1/2)*(T_w/TCA(self.TCAobj).T_c)*(1+((TCA(self.TCAobj).gamma-1)/2)*self.bartz_props['M']**2)+1/2)**(0.8-(self.bartz_props['w']/5))*(1+((TCA(self.TCAobj).gamma-1)/2)*self.bartz_props['M']**2)**(self.bartz_props['w']/5) # dimensionless factor
+
+        gamma = self.TCAobj.gamma
+        T_c = self.TCAobj.T_c
+        GEOvalues = self.geocalc()
+
+        D_t = 2*GEOvalues['R_t']
+        Pr = 4*gamma/(9*gamma - 5) # prandtl number given in Bartz paper
+        T_w = T_c # assume for now
+        sigma = 1/((1/2)*(T_w/T_c)*(1+((gamma-1)/2)*self.bartz_props['M']**2)+1/2)**(0.8-(self.bartz_props['w']/5))*(1+((gamma-1)/2)*self.bartz_props['M']**2)**(self.bartz_props['w']/5) # dimensionless factor
 
         bartzdict = {
             'D_t': D_t,
             'Pr': Pr,
-            'c_t': c_t,
             'T_w': T_w,
             'sigma': sigma,
         }

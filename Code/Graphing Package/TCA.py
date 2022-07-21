@@ -53,7 +53,7 @@ class TCA:
 
                     #print(f"{eps:.2f}     {Isp:.0f}")
 
-                cstar = C.get_Cstar(Pc=p_c)
+                cstar = C.get_Cstar(Pc=self.p_c)
                 Temps = C.get_Temperatures(Pc=self.p_c,MR=self.OF_ratio,eps=opt_eps)
                 mw_gamma_chamber = C.get_Chamber_MolWt_gamma(Pc=self.p_c, MR=self.OF_ratio, eps = opt_eps)
                 gamma = mw_gamma_chamber[1]

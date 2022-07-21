@@ -13,69 +13,90 @@ class Injector:
     '''
 
     def __init__(self, TCAobj, CHAMBERobj, injector_props):  
+        
         self.TCAobj = TCAobj
         self.Chamberobj = CHAMBERobj
-        self.injector_props = injector_props #user will pass this in as a dictionary with the values for d_c, rho_r, rho_z, d1, d2, C_d, delta_P, delta_P_o
+        self.injector_props = injector_props #user will pass this in as a dictionary with the values for rho_r, rho_z, d1, d2, C_d, delta_P, delta_P_o
 
+    def pintle_system_calc(self):
+        
+        mdot = self.TCAobj.mdot
+        OF_Ratio = self.TCAobj.OF_Ratio
+        R_c = self.CHAMBERobj.geometric_props['R_c']
+        L_c = self.CHAMBERob.geometric_props['L_c']
+        
+        # Calculate radial and axial propellant mass flow rates
+        mdot_r = mdot / (1+OF_Ratio) * OF_Ratio 
+        mdot_z = mdot / (1+OF_Ratio) 
 
-    # Calculate radial and axial propellant mass flow rates
-    mdot_r = mdot_t / (1 + OF) * OF
-    mdot_z = mdot_t / (1 + OF)
+        #Calculate pintle diameter and radius using chamber-to-pintle ratio
+        D_p = R_c / 4 #Pintle diameter
+        R_p = D_p / 2 #Pintle radius
+        L_pintle = L_c/3  # Pintle length
 
-    # Calculate pintle diameter and radius using chamber-to-pintle ratio
-    d_p = d_c / 4
-    r_p = d_p / 2
+        pintle_system_dict = {
+            'mdot_r': mdot_r,
+            'mdot_z': mdot_z,
+            'D_p': D_p,
+            'R_p': R_p,
+            'L_pintle': L_pintle,
+        }
+        return(pintle_system_dict)
 
-    # Gap tolerance as provided by machine shop
-    gap_tolerance = 0.05 / 1000
+    def sizingcalc(self):
+        
+        PINTLEvalues = self.pintle_system_calc()
+        mdot_r = PINTLEvalues['mdot_r']
+        mdot_z = PINTLEvalues['mdot_z']
+        D_p = PINTLEvalues['D_p']
+        R_p = PINTLEvalues['R_p']
+        gap_tolerance = 0.05 / 1000 # Gap tolerance as provided by machine shop
+        alpha = 0.7 # Constant needed for LMR and Spray Angle relation
+        beta = 2.0 # Constant needed for LMR and Spray Angle relation
 
-    # Constants needed for LMR and Spray Angle relation
-    alpha = 0.7
-    beta = 2.0
+        # ---------------------------------------ORIFICE SIZING-------------------------------------------#
 
-    # ---------------------------------------ORIFICE SIZING-------------------------------------------#
+        # Orifice propellant discharge area
 
-    # Orifice propellant discharge area
+        '''
+        _m designates value in meters
+        _mm designates value in millimeters
+        '''
 
-    '''
-    _m designates value in meters
-    _mm designates value in millimeters
-    '''
+        A_r_m = mdot_r / (self.injector_props['C_d'] * np.sqrt(2 * self.injector_props['rho_r'] * self.injector_props['delta_P_o']))  # m^2
+        A_r_mm = A_r_m * 1000000  # mm^2
 
-    A_r_m = mdot_r / (C_d * np.sqrt(2 * rho_r * delta_P_o))  # m^2
-    A_r_mm = A_r_m * 1000000  # mm^2
+        a1 = np.pi * ((self.injector_props['d1'] * 0.5) ** 2)  # area of each orifice in row 1
+        a2 = np.pi * ((self.injector_props['d2'] * 0.5) ** 2)  # area of "" row 2
 
-    a1 = np.pi * ((d1 * 0.5) ** 2)  # area of each orifice in row 1
-    a2 = np.pi * ((d2 * 0.5) ** 2)  # area of "" row 2
+        orifice_pairs = a1 + a2  # area per pair of orifices
 
-    orifice_pairs = a1 + a2  # area per pair of orifices
+        n_orifice_pairs = round(A_r_mm / orifice_pairs)
 
-    n_orifice_pairs = round(A_r_mm / orifice_pairs)
+        percent_error = 100 * (n_orifice_pairs - (A_r_mm / orifice_pairs)) / (A_r_mm / orifice_pairs)
 
-    percent_error = 100 * (n_orifice_pairs - (A_r_mm / orifice_pairs)) / (A_r_mm / orifice_pairs)
+        BF = (n_orifice_pairs * (self.injector_props['d1'] + self.injector_props['d2'])) / (2 * np.pi * ((D_p * 1000) * 0.5))
 
-    BF = (n_orifice_pairs * (d1 + d2)) / (2 * np.pi * ((d_p * 1000) * 0.5))
+        # -------------------------------------ANNULAR GAP SIZING-----------------------------------------#
 
-    # -------------------------------------ANNULAR GAP SIZING-----------------------------------------#
+        A_z_m = mdot_z / (self.injector_props['C_d'] * np.sqrt(2 * self.injector_props['rho_z'] * self.injector_props['delta_P']))
+        A_z_mm = A_z_m * 1000000
 
-    A_z_m = mdot_z / (C_d * np.sqrt(2 * rho_z * delta_P))
-    A_z_mm = A_z_m * 1000000
+        gap = np.sqrt((A_z_mm / np.pi) + ((R_p * 1000) ** 2)) - (R_p * 1000)
+        gap_low = gap - (gap_tolerance * 1000)
+        gap_high = gap + (gap_tolerance * 1000)
 
-    gap = np.sqrt((A_z_mm / np.pi) + ((r_p * 1000) ** 2)) - (r_p * 1000)
-    gap_low = gap - (gap_tolerance * 1000)
-    gap_high = gap + (gap_tolerance * 1000)
+        # ---------------------------------------CALCULATE LMR AND THETA---------------------------------------#
 
-    # ---------------------------------------CALCULATE LMR AND THETA---------------------------------------#
+        A_lr_c = np.pi * ((self.injector_props['d1'] / 2000) ** 2 + (self.injector_props['d2'] / 2000) ** 2)  # cross-sectional area for one orifice pair
+        A_lz_c = (gap / 1000) * (
+                    self.injector_props['d1'] / 1000 + self.injector_props['d2'] / 1000)  # cross-sectional area of annular stream that impinges on the orifice pair
 
-    A_lr_c = np.pi * ((d1 / 2000) ** 2 + (d2 / 2000) ** 2)  # cross-sectional area for one orifice pair
-    A_lz_c = (gap / 1000) * (
-                d1 / 1000 + d2 / 1000)  # cross-sectional area of annular stream that impinges on the orifice pair
+        U_r_c = mdot_r / (self.injector_props['rho_r'] * A_r_m)
+        U_z_c = mdot_z / (self.injector_props['rho_z'] * A_z_m)
 
-    U_r_c = mdot_r / (rho_r * A_r_m)
-    U_z_c = mdot_z / (rho_z * A_z_m)
-
-    LMR_c = (rho_r * (U_r_c ** 2) * A_lr_c) / (rho_z * (U_z_c ** 2) * A_lz_c)
-    theta_c = alpha * np.arctan(beta * LMR_c) * (180 / np.pi) + 20 #theta_c = converging angle of nozzle
+        LMR_c = (self.injector_props['rho_r'] * (U_r_c ** 2) * A_lr_c) / (self.injector_props['rho_z'] * (U_z_c ** 2) * A_lz_c)
+        theta_c = alpha * np.arctan(beta * LMR_c) * (180 / np.pi) + 20 #theta_c = converging angle of nozzle
 
     # -------------------------------------------SETTING UP PLOTS-------------------------------------------------#
 
