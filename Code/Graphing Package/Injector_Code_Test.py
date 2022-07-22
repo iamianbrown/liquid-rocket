@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import TCA
-import Chamber_Size_Test
+from TCA import *
+from Chamber_Size_Test import *
 
 
 class Injector:
@@ -15,15 +15,33 @@ class Injector:
     def __init__(self, TCAobj, CHAMBERobj, injector_props):  
         
         self.TCAobj = TCAobj
-        self.Chamberobj = CHAMBERobj
+        self.CHAMBERobj = CHAMBERobj
         self.injector_props = injector_props #user will pass this in as a dictionary with the values for rho_r, rho_z, d1, d2, C_d, delta_P, delta_P_o
+
+        PINTLEvalues = self.pintle_system_calc()
+        INJvalues = self.sizingcalc()
+        self.injmerge = {
+            'mdot_r': PINTLEvalues['mdot_r'],
+            'mdot_z': PINTLEvalues['mdot_z'],
+            'D_p': PINTLEvalues['D_p'],
+            'R_p': PINTLEvalues['R_p'],
+            'L_pintle': PINTLEvalues['L_pintle'],
+            'A_r_mm': INJvalues['A_r_mm'],
+            'A_z_mm': INJvalues['A_z_mm'],
+            'n_oriface_pairs': INJvalues['n_oriface_pairs'],
+            'BF': INJvalues['BF'],
+            'gap': INJvalues['gap'],
+            'LMR': INJvalues['LMR'],
+            'theta_c': INJvalues['theta_c']
+        }
+        self.injector_props.update(self.injmerge)
 
     def pintle_system_calc(self):
         
         mdot = self.TCAobj.mdot
-        OF_Ratio = self.TCAobj.OF_Ratio
+        OF_Ratio = self.TCAobj.OF_ratio
         R_c = self.CHAMBERobj.geometric_props['R_c']
-        L_c = self.CHAMBERob.geometric_props['L_c']
+        L_c = self.CHAMBERobj.geometric_props['L_c']
         
         # Calculate radial and axial propellant mass flow rates
         mdot_r = mdot / (1+OF_Ratio) * OF_Ratio 
@@ -100,13 +118,24 @@ class Injector:
 
     # -------------------------------------------SETTING UP PLOTS-------------------------------------------------#
 
-    # Array of gap sizes between 0.05 mm and 0.8 mm
-    a = np.linspace(0.05 / 1000, 0.8 / 1000, 100000)
+        # Array of gap sizes between 0.05 mm and 0.8 mm
+        a = np.linspace(0.05 / 1000, 0.8 / 1000, 100000)
 
-    A_lr = np.pi * ((d1 / 2 / 1000) ** 2)
-    A_lz = (gap / 1000) * (d1 / 1000)
-    U_r = mdot_r / (rho_r * A_r_m)
-    U_z = mdot_z / (rho_z * np.pi * ((r_p + a) ** 2 - (r_p) ** 2))
+        A_lr = np.pi * ((self.injector_props['d1'] / 2 / 1000) ** 2)
+        A_lz = (gap / 1000) * (self.injector_props['d1'] / 1000)
+        U_r = mdot_r / (self.injector_props['rho_r'] * A_r_m)
+        U_z = mdot_z / (self.injector_props['rho_z'] * np.pi * ((R_p + a) ** 2 - (R_p) ** 2))
 
-    LMR = (rho_r * (U_r ** 2) * A_lr) / (rho_z * (U_z ** 2) * A_lz)
-    theta = (alpha * np.arctan(beta * LMR) * (180 / np.pi)) + 20
+        LMR = (self.injector_props['rho_r'] * (U_r ** 2) * A_lr) / (self.injector_props['rho_z'] * (U_z ** 2) * A_lz)
+        theta = (alpha * np.arctan(beta * LMR) * (180 / np.pi)) + 20
+
+        sizingdict = {
+            'A_r_mm': A_r_mm,
+            'A_z_mm': A_z_mm,
+            'n_oriface_pairs': n_orifice_pairs,
+            'BF': BF,
+            'gap': gap,
+            'LMR': LMR_c,
+            'theta_c': theta_c
+        }
+        return(sizingdict)

@@ -1,12 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import Injector_Code_Test
+from Injector_Code_Test import *
 from rocketcea.cea_obj import CEA_Obj
-import TCA
-
+from TCA import *
 
 class Chamber:
-    
     
     def __init__(self, TCAobj, geometric_props, bartz_props): 
         
@@ -15,7 +13,7 @@ class Chamber:
         self.geometric_props = geometric_props
         # geometric_props should be an input dictionary of R_c and L_characteristic
         GEOvalues = self.geocalc()
-        geomerge = {
+        self.geomerge = {
             'A_t': GEOvalues['A_t'],    # Throat area
             'eps_c': GEOvalues['eps_c'],# compression ratio
             'V_c': GEOvalues['V_c'],    # Volume of combustion chamber
@@ -25,22 +23,19 @@ class Chamber:
             'R_b': GEOvalues['R_b'],    # Radius of bigger arc, usually 1.5 times the throat radius
             'R_s': GEOvalues['R_s'],    # Radius of smaller arc, usually 0.4 times the throat radius
             }
-        geomerge.update(self.geometric_props) 
+        self.geometric_props.update(self.geomerge) 
         
         self.bartz_props = bartz_props
         # bartz_props should be an input dictionary containing mu, m, w, M
         BARTZvalues = self.Bartzcalc()
-        bartzmerge = {
+        self.bartzmerge = {
             'D_t': BARTZvalues['D_t'],
             'Pr': BARTZvalues['Pr'],
             'T_w': BARTZvalues['T_w'],
             'sigma': BARTZvalues['sigma'],
             }
-        bartzmerge.update(bartz_props)
+        self.bartz_props.update(self.bartzmerge)
 
-       
-        
-    
     def geocalc(self):
         
         mdot = self.TCAobj.mdot
@@ -101,5 +96,3 @@ class Chamber:
         }
 
         return(bartzdict)
-    
-        

@@ -33,7 +33,7 @@ class TCA:
             
                 # C = CEA_Obj( oxName='LOX', fuelName='JetA', isp_units='m/s', cstar_units='m/s', temperature_units='K')
 
-                C = CEA_Obj(oxName=self.geometric_props['oxidizer'], fuelName=self.geometric_props['fuel'])
+                C = CEA_Obj(oxName=self.oxidizer, fuelName=self.fuel)
 
                 # print("O/F, Isp(m/s), Cstar(m/s), Temp(K)")
 
@@ -46,7 +46,7 @@ class TCA:
 
                     # print(f"{of_ratio:.2f}     {Isp_th:.0f}      {Cstar:.0f}        {Tc:.0f}   {C.get_PcOvPe(Pc=Pc, MR=2, eps=eps):.0f}")
 
-                    Isp, mode = C.estimate_Ambient_Isp(Pc=self.combustion_props['p_c'], MR=self.combustion_props['OF_ratio'], eps=eps, Pamb=14.7)
+                    Isp, mode = C.estimate_Ambient_Isp(Pc=self.p_c, MR=self.OF_ratio, eps=eps, Pamb=14.7)
                     if Isp > max_Isp:
                         max_Isp = Isp
                         opt_eps = eps
