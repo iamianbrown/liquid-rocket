@@ -6,13 +6,15 @@ from Injector_Code_Test import *
 
 #Thrust Chamber Assembly Class
 class TCA:
-    def __init__(self, fuel, oxidizer, F, OF_ratio, p_c):
+    def __init__(self, fuel, oxidizer, F, OF_ratio, p_c, INJobj, CHAMBERobj):
         
         self.fuel = fuel
         self.oxidizer = oxidizer
         self.F = F
         self.OF_ratio = OF_ratio
         self.p_c = p_c
+        self.INJobj = INJobj
+        self.CHAMBERobj = CHAMBERobj
 
         CEAvalues = self.CEArun()
         self.mdot = CEAvalues['mdot']
