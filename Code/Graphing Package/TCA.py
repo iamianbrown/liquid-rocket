@@ -6,15 +6,13 @@ from Injector_Code_Test import *
 
 #Thrust Chamber Assembly Class
 class TCA:
-    def __init__(self, fuel, oxidizer, F, OF_ratio, p_c, INJobj, CHAMBERobj):
+    def __init__(self, fuel, oxidizer, F, OF_ratio, p_c): #add INJobj and CHAMBERobj as paramaters
         
         self.fuel = fuel
         self.oxidizer = oxidizer
         self.F = F
         self.OF_ratio = OF_ratio
         self.p_c = p_c
-        self.INJobj = INJobj
-        self.CHAMBERobj = CHAMBERobj
 
         CEAvalues = self.CEArun()
         self.mdot = CEAvalues['mdot']
@@ -26,8 +24,6 @@ class TCA:
         self.Cp = CEAvalues['Cp']
         self.Cv = CEAvalues['Cv']
         self.R = CEAvalues['R']
-
-
 
 #   ------------------------------------------- CEArun Stuff -------------------------------------------
 
@@ -60,7 +56,7 @@ class TCA:
                 mw_gamma_chamber = C.get_Chamber_MolWt_gamma(Pc=self.p_c, MR=self.OF_ratio, eps = opt_eps)
                 gamma = mw_gamma_chamber[1]
                 T_c = Temps[0]
-                v_e = max_Isp  
+                v_e = max_Isp
                 mdot = self.F/v_e
                 Cp = C.get_Chamber_Cp(Pc=self.p_c, MR=self.OF_ratio, eps=opt_eps)
                 Cv = Cp/gamma
@@ -79,3 +75,38 @@ class TCA:
                 }
 
                 return (ceadict)
+
+    def getind(self, independent):
+
+        if independent == 'p_c':
+            return(self.p_c)
+        elif independent == 'F':
+            return(self.F)
+        elif independent == 'OF_Ratio':
+            return(self.OF_ratio)
+
+    def getdep(self, dependent):
+        Dictvalues = self.CEArun()
+        return(Dictvalues[dependent]) 
+
+    def changeVal(self, independent, value):
+        
+        if independent == 'p_c':
+            self.p_c = value
+        elif independent == 'F':
+            self.F = value
+        elif independent == 'OF_Ratio':
+            self.OF_ratio = value
+
+    def plotparams(self, ind, dep, minVal, maxVal):
+
+            list_ind = []
+            list_dep = []
+
+            for j in range(minVal, maxVal):
+                self.changeVal(ind,j)
+                list_dep.append(self.getdep(dep))
+                list_ind.append(self.getind(ind))
+            
+            plt.plot(list_ind, list_dep, 'ro')
+            plt.show()

@@ -3,38 +3,21 @@ from TCA import *
 from Chamber_Size_Test import *
 from Graphing_Code import *
 
-# listTCA = []
-
-# for i in range(300,320):
-#     list.append(TCA('JetA', 'LOX', 400, 2.1, i))
-
-# for obj in list:
-#     print(obj.mdot)
-
-# listCHAMBER = []
-# listINJECTOR = []
-
-
 
 tca1 = TCA('JetA', 'LOX', 400, 2.2, 300) #TCA Obj
-#print(tca1.mdot)
+tca1.plotparams('p_c', 'mdot', 300, 320)
 
 geo = {
-    'R_c': np.linspace(.1,.25,100),
+    'R_c': .25,
     'L_characteristic': 1,
 }
+
 bartz = {
     'mu': .2,
     'm': .2,
     'w': .2,
-    'M': .2
+    'M': .2,
 }
-
-
-
-chamber1 = Chamber(tca1, geometric_props=geo, bartz_props=bartz) #Chamber obj
-print(chamber1.geocalc())
-#print(chamber1.geometric_props['A_t']) 
 
 inj = {
     'rho_r': 800,
@@ -48,7 +31,8 @@ inj = {
 #injector1 = Injector(tca1, chamber1, inj) 
 #print(injector1.sizingcalc())
 
-
+# tca1 = tca(a, b, c, d)
+# tca1.plotparams(ind, dep, step/linspace, misc)
 
 
 
