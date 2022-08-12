@@ -6,7 +6,7 @@ from Injector_Code_Test import *
 
 #Thrust Chamber Assembly Class
 class TCA:
-    def __init__(self, fuel, oxidizer, F, OF_ratio, p_c): #add INJobj and CHAMBERobj as paramaters
+    def __init__(self, fuel, oxidizer, F, OF_ratio, p_c, INJobj=None, CHAMBERobj=None): #add INJobj and CHAMBERobj as paramaters
         
         self.fuel = fuel
         self.oxidizer = oxidizer

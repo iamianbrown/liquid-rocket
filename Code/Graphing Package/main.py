@@ -5,7 +5,7 @@ from Graphing_Code import *
 
 
 tca1 = TCA('JetA', 'LOX', 400, 2.2, 300) #TCA Obj
-tca1.plotparams('p_c', 'mdot', 300, 320)
+tca1.plotparams('F', 'mdot', 400, 450)
 
 geo = {
     'R_c': .25,
