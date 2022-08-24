@@ -38,12 +38,12 @@ class Chamber:
 
     def geocalc(self):
         
-        mdot = self.TCAobj.mdot
-        p_c = self.TCAobj.p_c
-        T_c = self.TCAobj.T_c
-        gamma = self.TCAobj.gamma
-        R = self.TCAobj.R
-        eps = self.TCAobj.eps
+        mdot = self.TCAobj.tca_props['mdot']
+        p_c = self.TCAobj.tca_props['p_c']
+        T_c = self.TCAobj.tca_props['T_c']
+        gamma = self.TCAobj.tca_props['gamma']
+        R = self.TCAobj.tca_props['R']
+        eps = self.TCAobj.tca_props['eps']
         
         A_t = mdot/(p_c/np.sqrt(T_c)*np.sqrt(gamma/R*(2/(gamma+1))**((gamma+1)/(gamma-1))))
 

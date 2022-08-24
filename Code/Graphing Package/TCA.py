@@ -6,24 +6,24 @@ from Injector_Code_Test import *
 
 #Thrust Chamber Assembly Class
 class TCA:
-    def __init__(self, fuel, oxidizer, F, OF_ratio, p_c, INJobj=None, CHAMBERobj=None): #add INJobj and CHAMBERobj as paramaters
+    def __init__(self, tca_props, CHAMBERobj=None, INJobj=None): #add INJobj and CHAMBERobj as paramaters
         
-        self.fuel = fuel
-        self.oxidizer = oxidizer
-        self.F = F
-        self.OF_ratio = OF_ratio
-        self.p_c = p_c
+        self.tca_props = tca_props
+        self.INJobj = INJobj
+        self.CHAMBERobj = CHAMBERobj
 
-        CEAvalues = self.CEArun()
-        self.mdot = CEAvalues['mdot']
-        self.eps = CEAvalues['eps']
-        self.v_e = CEAvalues['v_e']
-        self.T_c = CEAvalues['T_c']
-        self.cstar = CEAvalues['cstar']
-        self.gamma = CEAvalues['gamma']
-        self.Cp = CEAvalues['Cp']
-        self.Cv = CEAvalues['Cv']
-        self.R = CEAvalues['R']
+        self.CEAvalues = self.CEArun()
+        self.mdot = self.CEAvalues['mdot']
+        self.eps = self.CEAvalues['eps']
+        self.v_e = self.CEAvalues['v_e']
+        self.T_c = self.CEAvalues['T_c']
+        self.cstar = self.CEAvalues['cstar']
+        self.gamma = self.CEAvalues['gamma']
+        self.Cp = self.CEAvalues['Cp']
+        self.Cv = self.CEAvalues['Cv']
+        self.R = self.CEAvalues['R']
+
+        self.tca_props.update(self.CEAvalues)
 
 #   ------------------------------------------- CEArun Stuff -------------------------------------------
 
@@ -31,7 +31,7 @@ class TCA:
             
                 # C = CEA_Obj( oxName='LOX', fuelName='JetA', isp_units='m/s', cstar_units='m/s', temperature_units='K')
 
-                C = CEA_Obj(oxName=self.oxidizer, fuelName=self.fuel)
+                C = CEA_Obj(oxName=self.tca_props['oxidizer'], fuelName=self.tca_props['fuel'])
 
                 # print("O/F, Isp(m/s), Cstar(m/s), Temp(K)")
 
@@ -44,21 +44,21 @@ class TCA:
 
                     # print(f"{of_ratio:.2f}     {Isp_th:.0f}      {Cstar:.0f}        {Tc:.0f}   {C.get_PcOvPe(Pc=Pc, MR=2, eps=eps):.0f}")
 
-                    Isp, mode = C.estimate_Ambient_Isp(Pc=self.p_c, MR=self.OF_ratio, eps=eps, Pamb=14.7)
+                    Isp, mode = C.estimate_Ambient_Isp(Pc=self.tca_props['p_c'], MR=self.tca_props['OF_Ratio'], eps=eps, Pamb=14.7)
                     if Isp > max_Isp:
                         max_Isp = Isp
                         opt_eps = eps
 
                     #print(f"{eps:.2f}     {Isp:.0f}")
 
-                cstar = C.get_Cstar(Pc=self.p_c)
-                Temps = C.get_Temperatures(Pc=self.p_c,MR=self.OF_ratio,eps=opt_eps)
-                mw_gamma_chamber = C.get_Chamber_MolWt_gamma(Pc=self.p_c, MR=self.OF_ratio, eps = opt_eps)
+                cstar = C.get_Cstar(Pc=self.tca_props['p_c'])
+                Temps = C.get_Temperatures(Pc=self.tca_props['p_c'],MR=self.tca_props['OF_Ratio'],eps=opt_eps)
+                mw_gamma_chamber = C.get_Chamber_MolWt_gamma(Pc=self.tca_props['p_c'], MR=self.tca_props['OF_Ratio'], eps = opt_eps)
                 gamma = mw_gamma_chamber[1]
                 T_c = Temps[0]
                 v_e = max_Isp
-                mdot = self.F/v_e
-                Cp = C.get_Chamber_Cp(Pc=self.p_c, MR=self.OF_ratio, eps=opt_eps)
+                mdot = self.tca_props['F']/v_e
+                Cp = C.get_Chamber_Cp(Pc=self.tca_props['p_c'], MR=self.tca_props['OF_Ratio'], eps=opt_eps)
                 Cv = Cp/gamma
                 R = Cp-Cv
 
@@ -77,26 +77,44 @@ class TCA:
                 return (ceadict)
 
     def getind(self, independent):
-
-        if independent == 'p_c':
-            return(self.p_c)
-        elif independent == 'F':
-            return(self.F)
-        elif independent == 'OF_Ratio':
-            return(self.OF_ratio)
+        #return(self.tca_props[independent])
+        if independent in self.tca_props.keys():
+            return(self.tca_props[independent])
+        elif independent in self.CHAMBERobj.geometric_props.keys():
+            return(self.CHAMBERobj.geometric_props[independent])
+        elif independent in self.CHAMBERobj.bartz_props.keys():
+            return(self.CHAMBERobj.bartz_props[independent])
+        elif independent in self.INJobj.injector_props.keys():
+            return(self.INJobj.injector_props[independent])
 
     def getdep(self, dependent):
-        Dictvalues = self.CEArun()
-        return(Dictvalues[dependent]) 
+        # Dictvalues = self.CEArun()
+        # return(Dictvalues[dependent])
+        if dependent in self.tca_props.keys():
+            Dictvalues = self.CEArun()
+            return(Dictvalues[dependent])
+        elif dependent in self.CHAMBERobj.geometric_props.keys():
+            Dictvalues = self.CHAMBERobj.geocalc()
+            return(Dictvalues[dependent])
+        elif dependent in self.CHAMBERobj.bartz_props.keys():
+            Dictvalues = self.CHAMBERobj.bartzcalc()
+            return(Dictvalues[dependent])
+        elif dependent in self.INJobj.injector_props.keys():
+            Dictvalues = self.INJobj.sizingcalc()
+            return(Dictvalues[dependent])
 
     def changeVal(self, independent, value):
+        #self.tca_props[independent] = value
+        if independent in self.tca_props.keys():
+            self.tca_props[independent] = value
+        elif independent in self.CHAMBERobj.geometric_props.keys():
+            self.CHAMBERobj.geometric_props[independent] = value
+        elif independent in self.CHAMBERobj.bartz_props.keys():
+            self.CHAMBERobj.bartz_props[independent] = value
+        elif independent in self.INJobj.injector_props.keys():
+            self.INJobj.injector_props[independent] = value
         
-        if independent == 'p_c':
-            self.p_c = value
-        elif independent == 'F':
-            self.F = value
-        elif independent == 'OF_Ratio':
-            self.OF_ratio = value
+        
 
     def plotparams(self, ind, dep, minVal, maxVal):
 
@@ -108,5 +126,7 @@ class TCA:
                 list_dep.append(self.getdep(dep))
                 list_ind.append(self.getind(ind))
             
-            plt.plot(list_ind, list_dep, 'ro')
+            plt.plot(list_ind, list_dep, '-g')
+            plt.xlabel(ind)
+            plt.ylabel(dep)
             plt.show()

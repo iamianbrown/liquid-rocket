@@ -3,9 +3,13 @@ from TCA import *
 from Chamber_Size_Test import *
 from Graphing_Code import *
 
-
-tca1 = TCA('JetA', 'LOX', 400, 2.2, 300) #TCA Obj
-tca1.plotparams('F', 'mdot', 400, 450)
+tcaprops = {
+    'fuel': 'JetA',
+    'oxidizer': 'LOX',
+    'F': 400,
+    'OF_Ratio': 2.2,
+    'p_c': 300
+}
 
 geo = {
     'R_c': .25,
@@ -28,6 +32,16 @@ inj = {
     'delta_P': 75,
     'delta_P_o': 50,
 }
+
+tca1 = TCA(tcaprops) #TCA Obj
+chamber1 = Chamber(tca1, geo, bartz)
+tca1 = TCA(tcaprops,chamber1)
+
+tca1.plotparams('p_c', 'A_t', 400, 450)
+#tca1.plotparams('F', 'mdot', 400, 450)
+
+
+
 #injector1 = Injector(tca1, chamber1, inj) 
 #print(injector1.sizingcalc())
 

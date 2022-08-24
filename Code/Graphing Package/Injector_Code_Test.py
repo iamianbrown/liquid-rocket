@@ -126,7 +126,7 @@ class Injector:
         U_r = mdot_r / (self.injector_props['rho_r'] * A_r_m)
         U_z = mdot_z / (self.injector_props['rho_z'] * np.pi * ((R_p + a) ** 2 - (R_p) ** 2)) #THIS IS WHERE THE CODE BREAKS BECAUSE YOU'RE ADDING THAT 'a' ARRAY SO THE SIZES NEED TO MATCH WITH 'R_p'
 
-        ans = p + a
+        
 
         LMR = (self.injector_props['rho_r'] * (U_r ** 2) * A_lr) / (self.injector_props['rho_z'] * (U_z ** 2) * A_lz)
         theta = (alpha * np.arctan(beta * LMR) * (180 / np.pi)) + 20
