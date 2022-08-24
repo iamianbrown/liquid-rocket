@@ -38,8 +38,8 @@ class Injector:
 
     def pintle_system_calc(self):
         
-        mdot = self.TCAobj.mdot
-        OF_Ratio = self.TCAobj.OF_ratio
+        mdot = self.TCAobj.tca_props['mdot']
+        OF_Ratio = self.TCAobj.tca_props['OF_Ratio']
         R_c = self.CHAMBERobj.geometric_props['R_c']
         L_c = self.CHAMBERobj.geometric_props['L_c']
         

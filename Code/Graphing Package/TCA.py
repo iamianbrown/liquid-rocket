@@ -114,7 +114,6 @@ class TCA:
         elif independent in self.INJobj.injector_props.keys():
             self.INJobj.injector_props[independent] = value
         
-        
 
     def plotparams(self, ind, dep, minVal, maxVal):
 
@@ -129,4 +128,6 @@ class TCA:
             plt.plot(list_ind, list_dep, '-g')
             plt.xlabel(ind)
             plt.ylabel(dep)
+            plt.title(dep + ' as a function of ' + ind)
+            plt.grid()
             plt.show()

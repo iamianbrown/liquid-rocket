@@ -30,23 +30,18 @@ inj = {
     'd2': 1.3,
     'C_d': .75,
     'delta_P': 75,
-    'delta_P_o': 50,
+    'delta_P_o': 50, 
 }
 
 tca1 = TCA(tcaprops) #TCA Obj
 chamber1 = Chamber(tca1, geo, bartz)
-tca1 = TCA(tcaprops,chamber1)
+inj1 = Injector(tca1, chamber1, inj)
+tca1 = TCA(tcaprops, chamber1, inj1)
 
-tca1.plotparams('p_c', 'A_t', 400, 450)
+tca1.plotparams('mdot', 'LMR', 1, 3)
 #tca1.plotparams('F', 'mdot', 400, 450)
 
 
-
-#injector1 = Injector(tca1, chamber1, inj) 
-#print(injector1.sizingcalc())
-
-# tca1 = tca(a, b, c, d)
-# tca1.plotparams(ind, dep, step/linspace, misc)
 
 
 
