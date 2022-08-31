@@ -8,10 +8,17 @@ class Chamber:
     
     def __init__(self, TCAobj, geometric_props, bartz_props): 
         
+        '''
+            This class is considered to be second in the general math flow of this program.
+            You must pass in a TCA object as well as two dictionaries:
+                1) geometric_props with: 'R_c' and 'L_characteristic'
+                2) bartz_props with: 'mu' and 'm' and 'w' and 'M'
+            This object holds two dictionaries for the geometric calculations and the bartz calculations
+        '''
+
         self.TCAobj = TCAobj 
 
         self.geometric_props = geometric_props
-        # geometric_props should be an input dictionary of R_c and L_characteristic
         GEOvalues = self.geocalc()
         self.geomerge = {
             'A_t': GEOvalues['A_t'],    # Throat area
@@ -26,7 +33,6 @@ class Chamber:
         self.geometric_props.update(self.geomerge) 
         
         self.bartz_props = bartz_props
-        # bartz_props should be an input dictionary containing mu, m, w, M
         BARTZvalues = self.Bartzcalc()
         self.bartzmerge = {
             'D_t': BARTZvalues['D_t'],
@@ -38,6 +44,11 @@ class Chamber:
 
     def geocalc(self):
         
+        '''
+            This function does the general geometry calculations for the combustion chamber.
+            It returns a dictionary containing some geometric properties of the combustion chamber.
+        '''
+
         mdot = self.TCAobj.tca_props['mdot']
         p_c = self.TCAobj.tca_props['p_c']
         T_c = self.TCAobj.tca_props['T_c']
@@ -78,6 +89,11 @@ class Chamber:
         return(geodict)
 
     def Bartzcalc(self):
+
+        '''
+            This function contains the calculations using the bartz formulas.
+            It returns a dictionaries with the answers to these bartz equations
+        '''
 
         gamma = self.TCAobj.gamma
         T_c = self.TCAobj.T_c

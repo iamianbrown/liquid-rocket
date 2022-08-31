@@ -8,6 +8,12 @@ from Injector_Code_Test import *
 class TCA:
     def __init__(self, tca_props, CHAMBERobj=None, INJobj=None): #add INJobj and CHAMBERobj as paramaters
         
+        ''' 
+            This class is considered to be the father class.
+            You must pass in a dictionary with the keys of: 'fuel', 'oxidizer', 'F', 'OF_Ratio', and 'p_c'
+            This TCA object holds a tca_props dictionary with all the input/output variables 
+        '''
+
         self.tca_props = tca_props
         self.INJobj = INJobj
         self.CHAMBERobj = CHAMBERobj
@@ -29,6 +35,11 @@ class TCA:
 
     def CEArun(self):
             
+                '''
+                    This is the implementation of the rocketcea module which calculates the CEA outputs within python. 
+                    It returns a dictionary of the CEArun outputs
+                '''
+
                 # C = CEA_Obj( oxName='LOX', fuelName='JetA', isp_units='m/s', cstar_units='m/s', temperature_units='K')
 
                 C = CEA_Obj(oxName=self.tca_props['oxidizer'], fuelName=self.tca_props['fuel'])
@@ -77,7 +88,9 @@ class TCA:
                 return (ceadict)
 
     def getind(self, independent):
-        #return(self.tca_props[independent])
+        
+        #This function simply matches the independent variable to the string passed in by the user
+
         if independent in self.tca_props.keys():
             return(self.tca_props[independent])
         elif independent in self.CHAMBERobj.geometric_props.keys():
@@ -88,8 +101,9 @@ class TCA:
             return(self.INJobj.injector_props[independent])
 
     def getdep(self, dependent):
-        # Dictvalues = self.CEArun()
-        # return(Dictvalues[dependent])
+
+        #This function basically just reruns the calculations for the dependent variable the user inputs
+
         if dependent in self.tca_props.keys():
             Dictvalues = self.CEArun()
             return(Dictvalues[dependent])
@@ -104,7 +118,9 @@ class TCA:
             return(Dictvalues[dependent])
 
     def changeVal(self, independent, value):
-        #self.tca_props[independent] = value
+
+        #This function iteratively changes the value of the independent variable
+
         if independent in self.tca_props.keys():
             self.tca_props[independent] = value
         elif independent in self.CHAMBERobj.geometric_props.keys():
@@ -116,6 +132,13 @@ class TCA:
         
 
     def plotparams(self, ind, dep, minVal, maxVal):
+
+            '''
+                This is the method you call in the main.py file when you want to graph two variables against each other.
+                
+                You must pass in an independent variable to graph along with its dependent variable in string format, as well as
+                a minumum to maximum value to graph the independent variable between
+            '''
 
             list_ind = []
             list_dep = []

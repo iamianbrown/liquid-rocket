@@ -3,6 +3,10 @@ from TCA import *
 from Chamber_Size_Test import *
 from Graphing_Code import *
 
+'''
+    The general mathematical 'flow' of this program goes from TCA -> Chamber -> Injector
+'''
+
 tcaprops = {
     'fuel': 'JetA',
     'oxidizer': 'LOX',
@@ -38,7 +42,7 @@ chamber1 = Chamber(tca1, geo, bartz)
 inj1 = Injector(tca1, chamber1, inj)
 tca1 = TCA(tcaprops, chamber1, inj1)
 
-tca1.plotparams('mdot', 'LMR', 1, 3)
+tca1.plotparams('F', 'mdot', 100 , 1000)
 #tca1.plotparams('F', 'mdot', 400, 450)
 
 

@@ -10,6 +10,10 @@ class Injector:
     '''
     _r designates radial propellant
     _z designates axial propellant
+
+        This class is considered to be last in the general math flow of this program
+        You must pass in a TCA object, a Chamber object, and one dictionary: injector_props with the keys of...
+            rho_r, rho_z, d1, d2, C_d, delta_P, delta_P_o
     '''
 
     def __init__(self, TCAobj, CHAMBERobj, injector_props):  
