@@ -50,18 +50,20 @@ class TCA:
                 opt_eps = C.get_eps_at_PcOvPe(Pc=self.tca_props['p_c'], MR = self.tca_props['OF_Ratio'], PcOvPe = pressure_ratio)
                 #print(opt_eps)
                 Isp, mode = C.estimate_Ambient_Isp(Pc = self.tca_props['p_c'], MR = self.tca_props['OF_Ratio'], eps = opt_eps, Pamb = 14.7)
-                max_Isp = Isp
+                
+                
 
                 cstar = C.get_Cstar(Pc=self.tca_props['p_c'], MR = self.tca_props['OF_Ratio'])
                 Temps = C.get_Temperatures(Pc=self.tca_props['p_c'],MR=self.tca_props['OF_Ratio'],eps=opt_eps)
                 mw_gamma_chamber = C.get_Chamber_MolWt_gamma(Pc=self.tca_props['p_c'], MR=self.tca_props['OF_Ratio'], eps = opt_eps)
                 gamma = mw_gamma_chamber[1]
                 T_c = Temps[0]
-                v_e = max_Isp
+                v_e = Isp * 9.8066
                 mdot = self.tca_props['F']/v_e
                 Cp = C.get_Chamber_Cp(Pc=self.tca_props['p_c'], MR=self.tca_props['OF_Ratio'], eps=opt_eps)
                 Cv = Cp/gamma
                 R = Cp-Cv
+
 
                 ceadict = {
                     'cstar': cstar,
@@ -135,6 +137,7 @@ class TCA:
 
             for j in range(minVal, maxVal):
                 self.changeVal(ind,j)
+                
                 list_dep.append(self.getdep(dep))
                 list_ind.append(self.getind(ind))
             
