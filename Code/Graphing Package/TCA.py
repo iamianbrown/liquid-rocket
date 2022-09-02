@@ -45,24 +45,14 @@ class TCA:
                 C = CEA_Obj(oxName=self.tca_props['oxidizer'], fuelName=self.tca_props['fuel'])
 
                 # print("O/F, Isp(m/s), Cstar(m/s), Temp(K)")
+                
+                pressure_ratio = self.tca_props['p_c']/14.7
+                opt_eps = C.get_eps_at_PcOvPe(Pc=self.tca_props['p_c'], MR = self.tca_props['OF_Ratio'], PcOvPe = pressure_ratio)
+                #print(opt_eps)
+                Isp, mode = C.estimate_Ambient_Isp(Pc = self.tca_props['p_c'], MR = self.tca_props['OF_Ratio'], eps = opt_eps, Pamb = 14.7)
+                max_Isp = Isp
 
-                max_Isp = 0
-                opt_eps = 0
-
-                for eps in np.arange(2, 7, 0.1):
-                    # Isp_th = C.get_Throat_Isp(Pc=Pc, MR=of_ratio)
-                    # Isp, Cstar, Tc = C.get_IvacCstrTc(Pc=Pc, MR=of_ratio, eps=eps)
-
-                    # print(f"{of_ratio:.2f}     {Isp_th:.0f}      {Cstar:.0f}        {Tc:.0f}   {C.get_PcOvPe(Pc=Pc, MR=2, eps=eps):.0f}")
-
-                    Isp, mode = C.estimate_Ambient_Isp(Pc=self.tca_props['p_c'], MR=self.tca_props['OF_Ratio'], eps=eps, Pamb=14.7)
-                    if Isp > max_Isp:
-                        max_Isp = Isp
-                        opt_eps = eps
-
-                    #print(f"{eps:.2f}     {Isp:.0f}")
-
-                cstar = C.get_Cstar(Pc=self.tca_props['p_c'])
+                cstar = C.get_Cstar(Pc=self.tca_props['p_c'], MR = self.tca_props['OF_Ratio'])
                 Temps = C.get_Temperatures(Pc=self.tca_props['p_c'],MR=self.tca_props['OF_Ratio'],eps=opt_eps)
                 mw_gamma_chamber = C.get_Chamber_MolWt_gamma(Pc=self.tca_props['p_c'], MR=self.tca_props['OF_Ratio'], eps = opt_eps)
                 gamma = mw_gamma_chamber[1]

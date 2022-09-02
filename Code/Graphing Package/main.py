@@ -10,8 +10,8 @@ from Graphing_Code import *
 tcaprops = {
     'fuel': 'JetA',
     'oxidizer': 'LOX',
-    'F': 400,
-    'OF_Ratio': 2.2,
+    'F': 4893.044,
+    'OF_Ratio': 2.25,
     'p_c': 300
 }
 
@@ -38,11 +38,12 @@ inj = {
 }
 
 tca1 = TCA(tcaprops) #TCA Obj
-chamber1 = Chamber(tca1, geo, bartz)
-inj1 = Injector(tca1, chamber1, inj)
-tca1 = TCA(tcaprops, chamber1, inj1)
+#chamber1 = Chamber(tca1, geo, bartz)
+#inj1 = Injector(tca1, chamber1, inj)
+#tca1 = TCA(tcaprops, chamber1, inj1)
 
-tca1.plotparams('F', 'mdot', 100 , 1000)
+print(tca1.tca_props['v_e'])
+#tca1.plotparams('OF_Ratio', 'BF', 1 , 10)
 #tca1.plotparams('F', 'mdot', 400, 450)
 
 
