@@ -1,0 +1,2 @@
+width: 6.00
+thickness: 3.69

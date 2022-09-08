@@ -1,0 +1,41 @@
+304-3h.txt
+Program name: Single Ramptest
+Date:Tuesday, March 17, 2020
+Time:10:08 AM
+Operator:Cody Moynihan
+Material tested:304 SS
+Specimen Ident:304-3
+10.000000 mm is specimen width
+2.200000 mm is specimen thickness
+22.000000 sq. mm is specimen cross-section
+50.799999 mm is Actuator full-scale.
+100.000000 kN is Load cell full-scale.
+2.286005 mm is Strain1 full-scale.
+1.143002 mm is Strain2 full-scale.
+25.400000 mm is Strain1 gage length.
+9.000020 % is Strain1 full-scale.
+12.700000 mm is Strain2 gage length.
+9.000016 % is Strain2 full-scale.
+4545.454545 MPA is Stress full-scale.
+BLANK LINE
+BLANK LINE
+BLANK LINE
+BLANK LINE
+BLANK LINE
+Single ramp selected.
+15.000000 mm is your wave amplitude.
+0.010000 mm/sec is your wave slope.
+BLANK LINE
+BLANK LINE
+BLANK LINE
+500.000000 msec is the data interval for the wave slope.
+BLANK LINE
+BLANK LINE
+BLANK LINE
+BLANK LINE
+BLANK LINE
+BLANK LINE
+BLANK LINE
+BLANK LINE
+304-3d1.txt
+END OF DATA FILE LISTING.
