@@ -6,27 +6,20 @@ from Injector_Code_Test import *
 
 
 #Thrust Chamber Assembly Class
-class TCA:
-    def __init__(self, tca_props, bartz_props, ENGINEobj=None, CHAMBERobj=None, INJobj=None): 
+class Combustion:
+    def __init__(self, tca_props, bartz_props): 
         
         ''' 
-            This class is considered to be the father class.
+            This class contains the everything related to the combustion parameters for the overall engine.
             You must pass in two dictionaries relating to tca_props (overall engine properties) and bartz_props (bartz calculations)
-            This TCA class also takes in the Chamber/Injector objects you build and compiles them into one class 
             INPUTS - 
                 tca_props: top level engine/combustion properties
                 bartz_props: parameters needed for bartz calculations
-                CHAMBERobj: the combustion chamber that the user assembles in main.py
-                INJobj: the injector that the user assembles in main.py
         '''
 
         #Construction of your objects
         self.tca_props = tca_props 
         self.bartz_props = bartz_props
-        self.INJobj = INJobj
-        self.CHAMBERobj = CHAMBERobj
-        self.ENGINEobj = ENGINEobj
-
         
         self.CEAvalues = self.CEArun() #Runs the CEArun() function to calculate CEArun parameters
         self.mdot = self.CEAvalues['mdot']
@@ -126,76 +119,3 @@ class TCA:
         }
 
         return(bartzdict)
-    
-    def getind(self, independent):
-        
-        #This function simply matches the independent variable to the string passed in by the user
-
-        if independent in self.tca_props.keys():
-            return(self.tca_props[independent])
-        elif independent in self.CHAMBERobj.geometric_props.keys():
-            return(self.CHAMBERobj.geometric_props[independent])
-        elif independent in self.CHAMBERobj.bartz_props.keys():
-            return(self.CHAMBERobj.bartz_props[independent])
-        elif independent in self.INJobj.injector_props.keys():
-            return(self.INJobj.injector_props[independent])
-
-    def getdep(self, dependent):
-
-        #This function basically just reruns the calculations for the dependent variable the user inputs
-
-        if dependent in self.tca_props.keys():
-            Dictvalues = self.tca_props.CEArun()
-            return(Dictvalues[dependent])
-        elif dependent in self.CHAMBERobj.geometric_props.keys():
-            self.CEArun()
-            Dictvalues = self.CHAMBERobj.geocalc()
-            #print(self.CHAMBERobj.geometric_props['A_t'])
-            return(Dictvalues[dependent])
-        elif dependent in self.bartz_props.keys():
-            Dictvalues = self.CHAMBERobj.bartzcalc()
-            return(Dictvalues[dependent])
-        elif dependent in self.INJobj.injector_props.keys():
-            Dictvalues = self.INJobj.sizingcalc()
-            #print(self.INJobj.injector_props['BF'])
-            return(Dictvalues[dependent])
-
-    def changeVal(self, independent, value):
-
-        #This function iteratively changes the value of the independent variable
-
-        if independent in self.tca_props.keys():
-            self.tca_props[independent] = value
-            #print(self.tca_props['F'])
-        elif independent in self.CHAMBERobj.geometric_props.keys():
-            self.CHAMBERobj.geometric_props[independent] = value
-            #print(self.CHAMBERobj.geometric_props['R_c'])
-        elif independent in self.CHAMBERobj.bartz_props.keys():
-            self.CHAMBERobj.bartz_props[independent] = value
-        elif independent in self.INJobj.injector_props.keys():
-            self.INJobj.injector_props[independent] = value
-        
-    def plotparams(self, ind, dep, minVal, maxVal, step):
-
-            '''
-                This is the method you call in the main.py file when you want to graph two variables against each other.
-                
-                You must pass in an independent variable to graph along with its dependent variable in string format, as well as
-                a minumum to maximum value with a defined step to graph the independent variable between
-            '''
-
-            list_ind = []
-            list_dep = []
-            lin = np.linspace(minVal, maxVal, step)
-
-            for j in lin:
-                self.changeVal(ind,j)
-                list_dep.append(self.getdep(dep))
-                list_ind.append(self.getind(ind))
-                
-            plt.plot(list_ind, list_dep, '-g')
-            plt.xlabel(ind)
-            plt.ylabel(dep)
-            plt.title(dep + ' as a function of ' + ind)
-            plt.grid()
-            plt.show()

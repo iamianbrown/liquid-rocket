@@ -10,7 +10,7 @@ class Chamber:
         
         '''
             This class is considered to be second in the general math flow of this program.
-            You must pass in a TCA object as well as two dictionaries:
+            You must pass in a 'Combustion' object as well as two dictionaries:
                 1) geometric_props with: 'R_c' and 'L_characteristic'
                 2) bartz_props with: 'mu' and 'm' and 'w' and 'M'
             This object holds two dictionaries for the geometric calculations and the bartz calculations

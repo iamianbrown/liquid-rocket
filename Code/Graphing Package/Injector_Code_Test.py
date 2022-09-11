@@ -12,8 +12,9 @@ class Injector:
     _z designates axial propellant
 
         This class is considered to be last in the general math flow of this program
-        You must pass in a TCA object, a Chamber object, and one dictionary: injector_props with the keys of...
+        You must pass in a 'Combustion' object, a 'Chamber' object, and one dictionary: injector_props with the keys of...
             rho_r, rho_z, d1, d2, C_d, delta_P, delta_P_o
+        This Injector object holds a dictionary with all of the geometric paramters of your pintle injector
     '''
 
     def __init__(self, TCAobj, CHAMBERobj, injector_props):  
@@ -44,7 +45,7 @@ class Injector:
         L_c = self.CHAMBERobj.geometric_props['L_c']
 
         #Calculate pintle diameter and radius using chamber-to-pintle ratio
-        D_p = R_c / 4 #Pintle diameter
+        D_p = R_c / 4 #Pintle diameter 
         R_p = D_p / 2 #Pintle radius
         L_pintle = L_c/3  # Pintle length
 

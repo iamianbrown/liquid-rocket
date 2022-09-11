@@ -37,15 +37,14 @@ inj = {
     'delta_P_o': 45, 
 }
 
-tca1 = TCA(tcaprops, bartz_props=bartz) #TCA Obj
-chamber1 = Chamber(tca1, geo)
-inj1 = Injector(tca1, chamber1, inj)
-Engine = TCA(tca_props=tcaprops, bartz_props=bartz, CHAMBERobj=chamber1, INJobj=inj1)
+combustion1 = Combustion(tcaprops, bartz_props=bartz) #TCA Obj
+chamber1 = Chamber(combustion1, geo)
+inj1 = Injector(combustion1, chamber1, inj)
 
-print(Engine.CHAMBERobj.geometric_props['A_t'])
+MkII = Engine(COMBUSTIONobj=combustion1, CHAMBERobj=chamber1, INJobj=inj1)
 
-Engine.plotparams('R_c', 'BF', .1, .2, 1000)
-#tca1.plotparams('F', 'mdot', 400, 450)
+MkII.plotparams('F', 'A_t', 4900, 5700, 1000)
+
 
 
 
