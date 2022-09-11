@@ -37,6 +37,9 @@ class Chamber:
         '''
             This function does the general geometry calculations for the combustion chamber.
             It returns a dictionary containing some geometric properties of the combustion chamber.
+            Input: Utilizes TCAobj and dictionary geometric_props that user passes in
+            Outputs: Returns a dictionary containing...
+                A_t, eps_c, V_c, L_c, R_t, R_e, R_b, R_s
         '''
 
         mdot = self.TCAobj.tca_props['mdot']

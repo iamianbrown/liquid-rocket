@@ -8,13 +8,21 @@ import numpy as np
 class Engine:
     def __init__(self, COMBUSTIONobj=None, CHAMBERobj=None, INJobj=None):
         
+        '''
+        This class compiles all of the objects into one to create an overall Engine.
+            It houses the combustion, chamber, and injector paramters all into one.
+        This class was made to make the graphing process easier.
+        '''
+
         self.COMBUSTIONobj = COMBUSTIONobj
         self.CHAMBERobj = CHAMBERobj
         self.INJobj = INJobj
 
     def getind(self, independent):
-        
-        #This function simply matches the independent variable to the string passed in by the user
+ 
+        '''
+        This function matches the independent variable to the string passed in by the user
+        '''
 
         if independent in self.COMBUSTIONobj.tca_props.keys():
             return(self.COMBUSTIONobj.tca_props[independent])
@@ -30,7 +38,9 @@ class Engine:
 
     def getdep(self, dependent):
 
-        #This function basically just reruns the calculations for the dependent variable the user inputs
+        '''
+        This function just reruns the calculations for the dependent variable that the user inputs
+        '''
 
         if dependent in self.COMBUSTIONobj.tca_props.keys():
             Dictvalues = self.COMBUSTIONobj.CEArun()
@@ -55,7 +65,9 @@ class Engine:
 
     def changeVal(self, independent, value):
 
-        #This function iteratively changes the value of the independent variable
+        '''
+        This function iteratively changes the value of the independent variable using the linspace in plotparams()
+        '''
 
         if independent in self.COMBUSTIONobj.tca_props.keys():
             self.COMBUSTIONobj.tca_props[independent] = value
