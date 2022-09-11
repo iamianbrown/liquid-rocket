@@ -6,7 +6,7 @@ from TCA import *
 
 class Chamber:
     
-    def __init__(self, TCAobj, geometric_props, bartz_props): 
+    def __init__(self, TCAobj, geometric_props): 
         
         '''
             This class is considered to be second in the general math flow of this program.
@@ -31,16 +31,6 @@ class Chamber:
             'R_s': GEOvalues['R_s'],    # Radius of smaller arc, usually 0.4 times the throat radius
             }
         self.geometric_props.update(self.geomerge) 
-        
-        self.bartz_props = bartz_props
-        BARTZvalues = self.Bartzcalc()
-        self.bartzmerge = {
-            'D_t': BARTZvalues['D_t'],
-            'Pr': BARTZvalues['Pr'],
-            'T_w': BARTZvalues['T_w'],
-            'sigma': BARTZvalues['sigma'],
-            }
-        self.bartz_props.update(self.bartzmerge)
 
     def geocalc(self):
         
@@ -56,7 +46,8 @@ class Chamber:
         R = self.TCAobj.tca_props['R']
         eps = self.TCAobj.tca_props['eps']
         
-        A_t = mdot/(p_c/np.sqrt(T_c)*np.sqrt(gamma/R*(2/(gamma+1))**((gamma+1)/(gamma-1))))
+        A_t = mdot/(p_c/np.sqrt(T_c)*np.sqrt(gamma/R*(2/(gamma+1))**((gamma+1)/(gamma-1)))) #Throat Area
+        #print(A_t)
 
         # The compression ratio will be
         eps_c = (np.pi*self.geometric_props['R_c']**2)/A_t
@@ -87,28 +78,3 @@ class Chamber:
         }
 
         return(geodict)
-
-    def Bartzcalc(self):
-
-        '''
-            This function contains the calculations using the bartz formulas.
-            It returns a dictionaries with the answers to these bartz equations
-        '''
-
-        gamma = self.TCAobj.gamma
-        T_c = self.TCAobj.T_c
-        GEOvalues = self.geocalc()
-
-        D_t = 2*GEOvalues['R_t']
-        Pr = 4*gamma/(9*gamma - 5) # prandtl number given in Bartz paper
-        T_w = T_c # assume for now
-        sigma = 1/((1/2)*(T_w/T_c)*(1+((gamma-1)/2)*self.bartz_props['M']**2)+1/2)**(0.8-(self.bartz_props['w']/5))*(1+((gamma-1)/2)*self.bartz_props['M']**2)**(self.bartz_props['w']/5) # dimensionless factor
-
-        bartzdict = {
-            'D_t': D_t,
-            'Pr': Pr,
-            'T_w': T_w,
-            'sigma': sigma,
-        }
-
-        return(bartzdict)

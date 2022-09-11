@@ -10,14 +10,14 @@ from Graphing_Code import *
 tcaprops = {
     'fuel': 'JetA',
     'oxidizer': 'LOX',
-    'F': 4900,
+    'F': 4900,  #4900 N is Grunt's Thrust
     'OF_Ratio': 2.25,
     'p_c': 300
 }
 
 geo = {
-    'R_c': .25,
-    'L_characteristic': 1,
+    'R_c': .12,
+    'L_characteristic': .9,
 }
 
 bartz = {
@@ -32,19 +32,19 @@ inj = {
     'rho_z': 1100,
     'd1': 1.3,
     'd2': 1.3,
-    'C_d': .75,
+    'C_d': .9,
     'delta_P': 75,
-    'delta_P_o': 50, 
+    'delta_P_o': 45, 
 }
 
-tca1 = TCA(tcaprops) #TCA Obj
-chamber1 = Chamber(tca1, geo, bartz)
+tca1 = TCA(tcaprops, bartz_props=bartz) #TCA Obj
+chamber1 = Chamber(tca1, geo)
 inj1 = Injector(tca1, chamber1, inj)
-tca1 = TCA(tcaprops, chamber1, inj1)
+Engine = TCA(tca_props=tcaprops, bartz_props=bartz, CHAMBERobj=chamber1, INJobj=inj1)
 
-#print(tca1.tca_props['v_e'])
+print(Engine.CHAMBERobj.geometric_props['A_t'])
 
-tca1.plotparams('F', 'eps', 4900 , 6000)
+Engine.plotparams('R_c', 'BF', .1, .2, 1000)
 #tca1.plotparams('F', 'mdot', 400, 450)
 
 
