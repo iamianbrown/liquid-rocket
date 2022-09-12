@@ -6,7 +6,7 @@ from TCA import *
 
 class Chamber:
     
-    def __init__(self, TCAobj, geometric_props): 
+    def __init__(self, COMBUSTIONobj, geometric_props): 
         
         '''
             This class is considered to be second in the general math flow of this program.
@@ -16,7 +16,7 @@ class Chamber:
             This object holds two dictionaries for the geometric calculations and the bartz calculations
         '''
 
-        self.TCAobj = TCAobj 
+        self.COMBUSTIONobj = COMBUSTIONobj 
 
         self.geometric_props = geometric_props
         GEOvalues = self.geocalc()
@@ -37,17 +37,17 @@ class Chamber:
         '''
             This function does the general geometry calculations for the combustion chamber.
             It returns a dictionary containing some geometric properties of the combustion chamber.
-            Input: Utilizes TCAobj and dictionary geometric_props that user passes in
+            Input: Utilizes COMBUSTIONobj and dictionary geometric_props that user passes in
             Outputs: Returns a dictionary containing...
                 A_t, eps_c, V_c, L_c, R_t, R_e, R_b, R_s
         '''
 
-        mdot = self.TCAobj.tca_props['mdot']
-        p_c = self.TCAobj.tca_props['p_c']
-        T_c = self.TCAobj.tca_props['T_c']
-        gamma = self.TCAobj.tca_props['gamma']
-        R = self.TCAobj.tca_props['R']
-        eps = self.TCAobj.tca_props['eps']
+        mdot = self.COMBUSTIONobj.tca_props['mdot']
+        p_c = self.COMBUSTIONobj.tca_props['p_c']
+        T_c = self.COMBUSTIONobj.tca_props['T_c']
+        gamma = self.COMBUSTIONobj.tca_props['gamma']
+        R = self.COMBUSTIONobj.tca_props['R']
+        eps = self.COMBUSTIONobj.tca_props['eps']
         
         A_t = mdot/(p_c/np.sqrt(T_c)*np.sqrt(gamma/R*(2/(gamma+1))**((gamma+1)/(gamma-1)))) #Throat Area
         #print(A_t)

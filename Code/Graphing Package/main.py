@@ -7,7 +7,7 @@ from Graphing_Code import *
     The general mathematical 'flow' of this program goes from TCA -> Chamber -> Injector
 '''
 
-tcaprops = {
+combustionprops = {
     'fuel': 'JetA',
     'oxidizer': 'LOX',
     'F': 4900,  #4900 N is Grunt's Thrust
@@ -15,19 +15,19 @@ tcaprops = {
     'p_c': 300
 }
 
-geo = {
+chamber_geometry = {
     'R_c': .12,
     'L_characteristic': .9,
 }
 
-bartz = {
+bartzprops = {
     'mu': .2,
     'm': .2,
     'w': .2,
     'M': .2,
 }
 
-inj = {
+injectorprops = {
     'rho_r': 800,
     'rho_z': 1100,
     'd1': 1.3,
@@ -37,13 +37,13 @@ inj = {
     'delta_P_o': 45, 
 }
 
-combustion1 = Combustion(tcaprops, bartz_props=bartz) #TCA Obj
-chamber1 = Chamber(combustion1, geo)
-inj1 = Injector(combustion1, chamber1, inj)
+combustion1 = Combustion(tca_props=combustionprops, bartz_props=bartzprops) #TCA Obj
+chamber1 = Chamber(combustion1, geometric_props=chamber_geometry)
+inj1 = Injector(combustion1, chamber1, injectorprops)
 
 MkII = Engine(COMBUSTIONobj=combustion1, CHAMBERobj=chamber1, INJobj=inj1)
 
-MkII.plotparams('F', 'A_t', 4900, 5700, 1000)
+MkII.plotparams('R_c', 'BF', .1, .2, 1000)
 
 
 
