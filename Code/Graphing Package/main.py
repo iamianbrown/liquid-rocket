@@ -10,14 +10,14 @@ from Graphing_Code import *
 combustionprops = {
     'fuel': 'JetA',
     'oxidizer': 'LOX',
-    'F': 4900,  #4900 N is Grunt's Thrust
-    'OF_Ratio': 2.25,
-    'p_c': 300
+    'F': 5000,  #5000 N is Grunt's Thrust
+    'OF_Ratio': 2.25, 
+    'p_c': 300 #psi
 }
 
 chamber_geometry = {
-    'R_c': .12,
-    'L_characteristic': .9,
+    'R_c': .13, #m
+    'L_characteristic': .9, #m
 }
 
 bartzprops = {
@@ -28,22 +28,29 @@ bartzprops = {
 }
 
 injectorprops = {
-    'rho_r': 800,
-    'rho_z': 1100,
-    'd1': 1.3,
-    'd2': 1.3,
-    'C_d': .9,
-    'delta_P': 75,
-    'delta_P_o': 45, 
+    'rho_r': 1141, #kg/m^3
+    'rho_z': 810, #kg/m^3
+    'd1': 1.3, #mm
+    'd2': 1.3, #mm
+    'C_d': .75,
+    'delta_P': 517107, #Pa
+    'delta_P_o': 310264, #Pa
+    #need to add skip distance input into injector
+    'skip_distance': 0.9 #m
+
 }
 
 combustion1 = Combustion(tca_props=combustionprops, bartz_props=bartzprops) #TCA Obj
 chamber1 = Chamber(combustion1, geometric_props=chamber_geometry)
 inj1 = Injector(combustion1, chamber1, injectorprops)
-
 MkII = Engine(COMBUSTIONobj=combustion1, CHAMBERobj=chamber1, INJobj=inj1)
 
-MkII.plotparams('R_c', 'BF', .1, .2, 1000)
+#print(chamber1.geometric_props['A_t'])
+
+#print(inj1.injector_props['L_pintle'])
+
+MkII.plotparams('A_r_mm', 'theta_c', 50, 80, 1000)
+# MkII.plotparams('F', 'mdot', 4900, 5500, 1000)
 
 
 

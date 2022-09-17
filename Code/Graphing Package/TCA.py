@@ -4,7 +4,6 @@ from rocketcea.cea_obj import CEA_Obj
 from Chamber_Size_Test import *
 from Injector_Code_Test import *
 
-
 #Thrust Chamber Assembly Class
 class Combustion:
     def __init__(self, tca_props, bartz_props): 

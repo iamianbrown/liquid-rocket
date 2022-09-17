@@ -48,7 +48,7 @@ class Engine:
         
         elif dependent in self.CHAMBERobj.geometric_props.keys():
             step1 = Combustion(tca_props=self.COMBUSTIONobj.tca_props,bartz_props=self.COMBUSTIONobj.bartz_props)
-            step2 = Chamber(TCAobj=step1, geometric_props=self.CHAMBERobj.geometric_props)
+            step2 = Chamber(COMBUSTIONobj=step1, geometric_props=self.CHAMBERobj.geometric_props)
             Dictvalues = step2.geocalc()
             return(Dictvalues[dependent])
         
@@ -58,8 +58,8 @@ class Engine:
         
         elif dependent in self.INJobj.injector_props.keys():
             step1 = Combustion(tca_props=self.COMBUSTIONobj.tca_props, bartz_props=self.COMBUSTIONobj.bartz_props)
-            step2 = Chamber(TCAobj=step1, geometric_props=self.CHAMBERobj.geometric_props)
-            step3 = Injector(TCAobj=step1, CHAMBERobj=step2, injector_props=self.INJobj.injector_props)
+            step2 = Chamber(COMBUSTIONobj=step1, geometric_props=self.CHAMBERobj.geometric_props)
+            step3 = Injector(COMBUSTIONobj=step1, CHAMBERobj=step2, injector_props=self.INJobj.injector_props)
             Dictvalues = step3.sizingcalc()
             return(Dictvalues[dependent])
 

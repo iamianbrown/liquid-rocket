@@ -55,6 +55,7 @@ class Injector:
         D_p = R_c / 4 #Pintle diameter 
         R_p = D_p / 2 #Pintle radius
         L_pintle = L_c/3  # Pintle length
+        skip_length = D_p * self.injector_props['skip_distance']
 
         pintle_system_dict = {
             'D_p': D_p,
@@ -66,7 +67,7 @@ class Injector:
     def sizingcalc(self):
         
         PINTLEvalues = self.pintle_system_calc()
-        D_p = PINTLEvalues['D_p']
+        D_p = PINTLEvalues['D_p'] 
         R_p = PINTLEvalues['R_p']
         gap_tolerance = 0.05 / 1000 # Gap tolerance as provided by machine shop
         alpha = 0.7 # Constant needed for LMR and Spray Angle relation
@@ -84,12 +85,16 @@ class Injector:
         A_r_m = self.COMBUSTIONobj.mdot_r / (self.injector_props['C_d'] * np.sqrt(2 * self.injector_props['rho_r'] * self.injector_props['delta_P_o']))  # m^2
         A_r_mm = A_r_m * 1000000  # mm^2
 
+
         a1 = np.pi * ((self.injector_props['d1'] * 0.5) ** 2)  # area of each orifice in row 1
         a2 = np.pi * ((self.injector_props['d2'] * 0.5) ** 2)  # area of "" row 2
+        #print(a1)
+        #print(a2)
 
         orifice_pairs = a1 + a2  # area per pair of orifices
-
         n_orifice_pairs = round(A_r_mm / orifice_pairs)
+        #print(A_r_m)
+        #print(A_r_mm)
 
         percent_error = 100 * (n_orifice_pairs - (A_r_mm / orifice_pairs)) / (A_r_mm / orifice_pairs)
 
@@ -114,7 +119,7 @@ class Injector:
         U_z_c = self.COMBUSTIONobj.mdot_z / (self.injector_props['rho_z'] * A_z_m)
 
         LMR_c = (self.injector_props['rho_r'] * (U_r_c ** 2) * A_lr_c) / (self.injector_props['rho_z'] * (U_z_c ** 2) * A_lz_c)
-        theta_c = alpha * np.arctan(beta * LMR_c) * (180 / np.pi) + 20 #theta_c = converging angle of nozzle
+        theta_c = alpha * np.arctan(beta * LMR_c) * (180 / np.pi) + 20 #theta_c = spray angle
 
     # -------------------------------------------SETTING UP PLOTS-------------------------------------------------#
 
@@ -136,7 +141,7 @@ class Injector:
             'BF': BF,
             'gap': gap,
             'LMR': LMR_c,
-            'theta_c': theta_c,
+            'theta_c': theta_c, #the spray angle
             'theta': theta
         }
         return(sizingdict)
