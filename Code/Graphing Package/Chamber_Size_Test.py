@@ -70,14 +70,14 @@ class Chamber:
         R_s = 0.4*R_t     # Radius of smaller arc, usually 0.4 times the throat radius
 
         geodict = {
-            'A_t': A_t,
-            'eps_c': eps_c,
-            'V_c': V_c,
-            'L_c': L_c,
-            'R_t': R_t,
-            'R_e': R_e,
-            'R_b': R_b,
-            'R_s': R_s,
+            'A_t': A_t, #throat area
+            'eps_c': eps_c, #expansion ratio
+            'V_c': V_c, #volume of chamber
+            'L_c': L_c, #length of chamber
+            'R_t': R_t, #throat radius
+            'R_e': R_e, #exit radius
+            'R_b': R_b, # Radius of bigger arc, usually 1.5 times the throat radius
+            'R_s': R_s, # Radius of smaller arc, usually 0.4 times the throat radius
         }
 
         return(geodict)

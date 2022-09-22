@@ -4,9 +4,10 @@ from Chamber_Size_Test import *
 from Injector_Code_Test import *
 import matplotlib.pyplot as plt
 import numpy as np
+np.seterr(invalid='ignore')
 
 class Engine:
-    def __init__(self, COMBUSTIONobj=None, CHAMBERobj=None, INJobj=None):
+    def __init__(self, COMBUSTIONobj, CHAMBERobj, INJobj):
         
         '''
         This class compiles all of the objects into one to create an overall Engine.
@@ -105,5 +106,104 @@ class Engine:
             plt.title(dep + ' as a function of ' + ind)
             plt.grid()
             plt.show()
+
+    def engineVisual(self):
+        ## FUNCTIONS
+        def atan(angle):
+            return np.tan(angle*np.pi/180)
+        def asin(angle):
+            return np.sin(angle*np.pi/180)
+        def acos(angle):
+            return np.cos(angle*np.pi/180)
+
+        def circle(x,R):    # Function for throat arcs with positions (0, R+R_t)
+            return (-np.sqrt(R**2-x**2)+(R + self.CHAMBERobj.geometric_props['R_t']))
+
+        def pintle_end(x):
+            return np.sqrt(self.INJobj.injector_props['R_p']**2-(x-(chamber_end+self.INJobj.injector_props['L_pintle']))**2) 
+
+        #### GEOMETRICAL VARIABLES
+        Theta_c = 35      # Angle for converging nozzle [deg]
+        Theta_e = -15     # Angle for diverging nozzle [deg]
+
+        R_b = 1.5 * self.CHAMBERobj.geometric_props['R_t']     # Radius of bigger arc, usually 1.5 times the throat radius
+        R_s = 0.4 * self.CHAMBERobj.geometric_props['R_t']    # Radius of smaller arc, usually 0.4 times the throat radius
+
+        R_pintle = self.INJobj.injector_props['R_p']  # Pintle radius
+        L_pintle = self.INJobj.injector_props['L_pintle']  # Pintle length
+        spray_angle = self.INJobj.injector_props['theta_c']  # [deg]
+        ####
+
+        ## Limits of each section, might change to make code nicer
+        y0 = self.CHAMBERobj.geometric_props['R_t']
+        x0 = 0
+
+        y1 = self.CHAMBERobj.geometric_props['R_e']
+        x1 = -(y1 - y0 + x0*atan(Theta_e))/atan(Theta_e)
+
+        ym1 = self.CHAMBERobj.geometric_props['R_c']
+        xm1 = -(ym1 - y0 + x0*atan(Theta_c))/atan(Theta_c)
+
+        ym2 = ym1
+        xm2 = -self.CHAMBERobj.geometric_props['L_c'] +(ym2 - ym1 + xm1*atan(Theta_c))/atan(Theta_c)
+
+        xb = np.linspace(-R_b*asin(Theta_c),0,50)  # Horizontal limits of big arc as function of Theta_c
+        xs = np.linspace(0,R_s*asin(-Theta_e),50)  # Horizontal limits of small arc as function of Theta_e
+
+        # Combustion chamber walls
+        linex0 = np.linspace(xm2-((ym1+R_b-(R_b*acos(Theta_c))-ym2)/asin(Theta_c)), 
+                            xm1-((ym1+R_b-(R_b*acos(Theta_c))-ym2)/asin(Theta_c)), 10)
+        liney0 = np.linspace(ym2, 
+                            ym1, 10)
+        chamber_end = xm2-((ym1+R_b-(R_b*acos(Theta_c))-ym2)/asin(Theta_c))
+
+        # Converging nozzle
+        linex1 = np.linspace(xm1-R_b*asin(Theta_c)+((ym1+R_b-(R_b*acos(Theta_c))-ym2)/atan(Theta_c)), 
+                            x0-R_b*asin(Theta_c), 10)
+        liney1 = np.linspace(ym2, 
+                            y0+(R_b-R_b*acos(Theta_c)), 10)
+
+        # Diverging nozzle
+        linex2 = np.linspace(x0+R_s*asin(-Theta_e), 
+                            x1+R_s*asin(-Theta_e), 10)
+        liney2 = np.linspace(y0+(R_s-R_s*acos(Theta_e)),
+                            y1+(R_s-R_s*acos(Theta_e)), 10)
+
+        # Spray angle
+        spray_angle = abs(90-spray_angle) # Correction
+        sprayx = np.linspace(chamber_end+L_pintle,chamber_end+L_pintle+atan(spray_angle)*(self.CHAMBERobj.geometric_props['R_c']-R_pintle),10)
+        sprayy = np.linspace(R_pintle, self.CHAMBERobj.geometric_props['R_c'],10)
+
+        # Plot
+        plt.figure(figsize=(14, 12))
+
+        plt.plot(linex0, liney0, 'k-')
+        plt.plot(linex1, liney1, 'k-')
+        plt.plot(linex2, liney2, 'k-')
+        plt.plot(linex0, -liney0, 'k-')
+        plt.plot(linex1, -liney1, 'k-')
+        plt.plot(linex2, -liney2, 'k-')
+
+        plt.plot(xb,circle(xb,R_b), 'k-')
+        plt.plot(xs,circle(xs,R_s), 'k-')
+        plt.plot(xb,-circle(xb,R_b), 'k-')
+        plt.plot(xs,-circle(xs,R_s), 'k-')
+
+        plt.plot(np.linspace(chamber_end+L_pintle, chamber_end+L_pintle+R_pintle, 50),
+                pintle_end(np.linspace(chamber_end+L_pintle, chamber_end+L_pintle+R_pintle, 50)), 'k-')
+        plt.plot(np.linspace(chamber_end+L_pintle, chamber_end+L_pintle+R_pintle, 50),
+                -pintle_end(np.linspace(chamber_end+L_pintle, chamber_end+L_pintle+R_pintle, 50)), 'k-')
+
+        plt.plot(sprayx,sprayy,'b--')
+        plt.plot(sprayx,-sprayy,'b--')
+
+        plt.hlines(y=R_pintle, xmin = chamber_end, xmax = chamber_end+L_pintle, color = 'black')
+        plt.hlines(y=-R_pintle, xmin = chamber_end, xmax = chamber_end+L_pintle, color = 'black')
+
+        plt.vlines(x=chamber_end, ymin=-ym2, ymax=ym2, color = 'black')
+        plt.vlines(x=chamber_end+L_pintle, ymin = -R_pintle, ymax = R_pintle, color = 'black')
+
+        plt.gca().set_aspect('equal', adjustable='box')
+        plt.show()
 
         
