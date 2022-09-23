@@ -16,8 +16,8 @@ combustionprops = { #goes into combustion class
 }
 
 chamber_geometry = { #goes into chamber class
-    'R_c': .14, #m
-    'L_characteristic': .9, #m
+    'R_c': .065, #Chamber radius [m]
+    'L_characteristic': .9, #Characteristic length [m]
 }
 
 bartzprops = { #goes into combustion class
@@ -28,11 +28,11 @@ bartzprops = { #goes into combustion class
 }
 
 injectorprops = { #goes into injector class
-    'rho_r': 1141, #kg/m^3
-    'rho_z': 810, #kg/m^3
-    'd1': .6, #mm
-    'd2': .6, #mm
-    'C_d': .75,
+    'rho_r': 1141, #kg/m^3 - density of radial propellant 
+    'rho_z': 810, #kg/m^3 - density of annular propellant
+    'd1': 1.3, #mm - row 1 orifice diameters for pintle
+    'd2': 1.3, #mm - row 2 orifice diameters for pintle
+    'C_d': .75, #Discharge coefficient
     'delta_P': 517000, #Pa (fuel pressure drop) - usually 25% of p_c  #15% is 310264 and 25% is 517000
     'delta_P_o': 310264, #Pa (oxidizer pressure drop) - usually 15% of p_c
     #need to add skip distance input into injector
@@ -46,17 +46,17 @@ inj1 = Injector(combustion1, chamber1, injectorprops)
 MkII = Engine(COMBUSTIONobj=combustion1, CHAMBERobj=chamber1, INJobj=inj1)
 
 
-#print(combustion1.tca_props['mdot'])
+print(combustion1.tca_props['eps'])
 #print(chamber1.geometric_props['A_t'])
 #print(inj1.injector_props['BF'])
-#print(MkII.INJobj.injector_props['BF'])
+#print(MkII.COMBUSTIONobj.tca_props['Cp'])
 
 #inj1.pintle_graph()
 
 
 #MkII.plotparams('R_c', 'theta_c', .07, .12, 1000)
 #MkII.plotparams('F', 'mdot', 4900, 5500, 1000)
-MkII.engineVisual()
+#MkII.engineVisual()
 
 
 

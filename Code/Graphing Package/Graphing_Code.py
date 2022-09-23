@@ -108,6 +108,7 @@ class Engine:
             plt.show()
 
     def engineVisual(self):
+        
         ## FUNCTIONS
         def atan(angle):
             return np.tan(angle*np.pi/180)
@@ -117,35 +118,40 @@ class Engine:
             return np.cos(angle*np.pi/180)
 
         def circle(x,R):    # Function for throat arcs with positions (0, R+R_t)
-            return (-np.sqrt(R**2-x**2)+(R + self.CHAMBERobj.geometric_props['R_t']))
+            return (-np.sqrt(R**2-x**2)+(R+R_t))
 
         def pintle_end(x):
-            return np.sqrt(self.INJobj.injector_props['R_p']**2-(x-(chamber_end+self.INJobj.injector_props['L_pintle']))**2) 
+            return np.sqrt(R_pintle**2-(x-(chamber_end+L_pintle))**2) 
 
         #### GEOMETRICAL VARIABLES
+        R_c = self.CHAMBERobj.geometric_props['R_c']
+        L_c = self.CHAMBERobj.geometric_props['L_c'] / 100
+        R_t = self.CHAMBERobj.geometric_props['R_t'] / 10
+        R_e = self.CHAMBERobj.geometric_props['R_e'] / 10
+        
         Theta_c = 35      # Angle for converging nozzle [deg]
         Theta_e = -15     # Angle for diverging nozzle [deg]
 
-        R_b = 1.5 * self.CHAMBERobj.geometric_props['R_t']     # Radius of bigger arc, usually 1.5 times the throat radius
-        R_s = 0.4 * self.CHAMBERobj.geometric_props['R_t']    # Radius of smaller arc, usually 0.4 times the throat radius
+        R_b = self.CHAMBERobj.geometric_props['R_b'] / 10
+        R_s = self.CHAMBERobj.geometric_props['R_s'] / 10
 
-        R_pintle = self.INJobj.injector_props['R_p']  # Pintle radius
-        L_pintle = self.INJobj.injector_props['L_pintle']  # Pintle length
+        R_pintle = self.INJobj.injector_props['R_p']
+        L_pintle = self.INJobj.injector_props['L_pintle'] / 100
+
         spray_angle = self.INJobj.injector_props['theta_c']  # [deg]
-        ####
 
         ## Limits of each section, might change to make code nicer
-        y0 = self.CHAMBERobj.geometric_props['R_t']
+        y0 = R_t
         x0 = 0
 
-        y1 = self.CHAMBERobj.geometric_props['R_e']
+        y1 = R_e
         x1 = -(y1 - y0 + x0*atan(Theta_e))/atan(Theta_e)
 
-        ym1 = self.CHAMBERobj.geometric_props['R_c']
+        ym1 = R_c
         xm1 = -(ym1 - y0 + x0*atan(Theta_c))/atan(Theta_c)
 
         ym2 = ym1
-        xm2 = -self.CHAMBERobj.geometric_props['L_c'] +(ym2 - ym1 + xm1*atan(Theta_c))/atan(Theta_c)
+        xm2 = -L_c +(ym2 - ym1 + xm1*atan(Theta_c))/atan(Theta_c)
 
         xb = np.linspace(-R_b*asin(Theta_c),0,50)  # Horizontal limits of big arc as function of Theta_c
         xs = np.linspace(0,R_s*asin(-Theta_e),50)  # Horizontal limits of small arc as function of Theta_e
@@ -171,8 +177,8 @@ class Engine:
 
         # Spray angle
         spray_angle = abs(90-spray_angle) # Correction
-        sprayx = np.linspace(chamber_end+L_pintle,chamber_end+L_pintle+atan(spray_angle)*(self.CHAMBERobj.geometric_props['R_c']-R_pintle),10)
-        sprayy = np.linspace(R_pintle, self.CHAMBERobj.geometric_props['R_c'],10)
+        sprayx = np.linspace(chamber_end+L_pintle,chamber_end+L_pintle+atan(spray_angle)*(R_c-R_pintle),10)
+        sprayy = np.linspace(R_pintle, R_c,10)
 
         # Plot
         plt.figure(figsize=(14, 12))
@@ -205,5 +211,3 @@ class Engine:
 
         plt.gca().set_aspect('equal', adjustable='box')
         plt.show()
-
-        
