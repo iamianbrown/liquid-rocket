@@ -147,7 +147,7 @@ class Engine:
             Nx = 0.382 * acos(Theta_n-90)
             Ny = 0.382 * asin(Theta_n-90) + 1.382
 
-            Ex = self.geometric_props['L_characteristic']*((np.sqrt(e_ratio)-1)/atan(15))
+            Ex = self.CHAMBERobj.geometric_props['L_characteristic']*((np.sqrt(e_ratio)-1)/atan(15))
             Ey = np.sqrt(e_ratio)
 
             m1 = atan(Theta_n)
@@ -202,12 +202,11 @@ class Engine:
             x_noz_vals.append(x_par)
             y_noz_vals.append(y_par)
 
-        ## Limits of each section, might change to make code nicer
         y0 = R_t
         x0 = 0
 
         y1 = R_e
-        x1 = -(y1 - y0 + x0*atan(Theta_e))/atan(Theta_e)
+        x1 = -(y1 - y0 + x0*atan(Theta_n))/atan(Theta_n)
 
         ym1 = R_c
         xm1 = -(ym1 - y0 + x0*atan(Theta_c))/atan(Theta_c)
@@ -216,7 +215,7 @@ class Engine:
         xm2 = -L_c +(ym2 - ym1 + xm1*atan(Theta_c))/atan(Theta_c)
 
         xb = np.linspace(-R_b*asin(Theta_c),0,50)  # Horizontal limits of big arc as function of Theta_c
-        xs = np.linspace(0,R_s*asin(-Theta_e),50)  # Horizontal limits of small arc as function of Theta_e
+        xs = np.linspace(0,R_s*asin(-Theta_n),50)  # Horizontal limits of small arc as function of Theta_n
 
         # Combustion chamber walls
         linex0 = np.linspace(xm2-((ym1+R_b-(R_b*acos(Theta_c))-ym2)/asin(Theta_c)), 
@@ -231,15 +230,20 @@ class Engine:
         liney1 = np.linspace(ym2, 
                             y0+(R_b-R_b*acos(Theta_c)), 10)
 
-
-
         # Spray angle
         spray_angle = abs(90-spray_angle) # Correction
         sprayx = np.linspace(chamber_end+L_pintle,chamber_end+L_pintle+atan(spray_angle)*(R_c-R_pintle),10)
-        sprayy = np.linspace(R_pintle, R_c,10)
+        sprayy = np.linspace(R_pintle, R_c, 10)
 
         # Plot
         plt.figure(figsize=(14, 12))
+
+        plt.plot(x_entrance_vals, y_entrance_vals, 'k-')
+        plt.plot(x_exit_vals, y_exit_vals, 'k-')
+        plt.plot(x_noz_vals,y_noz_vals, 'k-')
+        plt.plot(x_entrance_vals, np.negative(y_entrance_vals), 'k-')
+        plt.plot(x_exit_vals, np.negative(y_exit_vals), 'k-')
+        plt.plot(x_noz_vals,np.negative(y_noz_vals), 'k-')
 
         plt.plot(linex0, liney0, 'k-')
         plt.plot(linex1, liney1, 'k-')
@@ -250,7 +254,6 @@ class Engine:
                 pintle_end(np.linspace(chamber_end+L_pintle, chamber_end+L_pintle+R_pintle, 50)), 'k-')
         plt.plot(np.linspace(chamber_end+L_pintle, chamber_end+L_pintle+R_pintle, 50),
                 -pintle_end(np.linspace(chamber_end+L_pintle, chamber_end+L_pintle+R_pintle, 50)), 'k-')
-
         plt.plot(sprayx,sprayy,'b--')
         plt.plot(sprayx,-sprayy,'b--')
 

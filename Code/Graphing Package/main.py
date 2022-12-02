@@ -46,7 +46,7 @@ inj1 = Injector(combustion1, chamber1, injectorprops)
 MkII = Engine(COMBUSTIONobj=combustion1, CHAMBERobj=chamber1, INJobj=inj1)
 
 
-print(combustion1.tca_props['eps'])
+#print(combustion1.tca_props['eps'])
 #print(chamber1.geometric_props['A_t'])
 #print(inj1.injector_props['BF'])
 #print(MkII.COMBUSTIONobj.tca_props['Cp'])
@@ -56,7 +56,7 @@ print(combustion1.tca_props['eps'])
 
 #MkII.plotparams('R_c', 'theta_c', .07, .12, 1000)
 #MkII.plotparams('F', 'mdot', 4900, 5500, 1000)
-#MkII.engineVisual()
+MkII.engineVisual()
 
 
 
