@@ -67,7 +67,7 @@ class Chamber:
         R_e = np.sqrt(eps)*R_t  # Exit radius
 
         R_b = 1.5*R_t     # Radius of bigger arc, usually 1.5 times the throat radius
-        R_s = 0.4*R_t     # Radius of smaller arc, usually 0.4 times the throat radius
+        R_s = 0.382*R_t     # Radius of smaller arc, usually 0.4 times the throat radius
 
         geodict = {
             'A_t': A_t, #throat area

@@ -130,7 +130,9 @@ class Engine:
         R_e = self.CHAMBERobj.geometric_props['R_e'] / 10
         
         Theta_c = 35      # Angle for converging nozzle [deg]
-        Theta_e = -15     # Angle for diverging nozzle [deg]
+        Theta_n = 33     # Angle for diverging nozzle [deg]
+        Theta_e = 7      # Angle for exit of nozzle [deg]
+        e_ratio = self.COMBUSTIONobj.tca_props['eps']
 
         R_b = self.CHAMBERobj.geometric_props['R_b'] / 10
         R_s = self.CHAMBERobj.geometric_props['R_s'] / 10
@@ -139,6 +141,66 @@ class Engine:
         L_pintle = self.INJobj.injector_props['L_pintle'] / 100
 
         spray_angle = self.INJobj.injector_props['theta_c']  # [deg]
+
+        def parabolic_nozzle(t):
+
+            Nx = 0.382 * acos(Theta_n-90)
+            Ny = 0.382 * asin(Theta_n-90) + 1.382
+
+            Ex = self.geometric_props['L_characteristic']*((np.sqrt(e_ratio)-1)/atan(15))
+            Ey = np.sqrt(e_ratio)
+
+            m1 = atan(Theta_n)
+            m2 = atan(Theta_e)
+
+            C1 = Ny - m1*Nx
+            C2 = Ey - m2*Ex
+
+            Qx = (C2-C1)/(m1-m2)
+            Qy = (m1*C2 - m2*C1)/(m1-m2)
+
+            x_par = R_t*((1-t)**2*Nx + 2*(1-t)*t*Qx + t**2*Ex)
+            y_par = R_t*((1-t)**2*Ny + 2*(1-t)*t*Qy + t**2*Ey)
+
+            return x_par, y_par
+
+        def entrance(theta):
+            x_par = 1.5 * R_t * acos(theta)
+            y_par = 1.5 * R_t * asin(theta) + 2.5 * R_t
+            return x_par, y_par
+
+        def exit(theta):
+            x_par = 0.382 * R_t * acos(theta)
+            y_par = 0.382 * R_t * asin(theta) + 1.382 * R_t
+            return x_par, y_par
+
+        x_entrance_vals = []
+        y_entrance_vals = []
+        entrance_steps = np.linspace(-Theta_c-90, -90, 50)
+
+        for i in entrance_steps: 
+            x_par, y_par = entrance(i)[0],entrance(i)[1]
+            x_entrance_vals.append(x_par)
+            y_entrance_vals.append(y_par)
+
+        x_exit_vals = []
+        y_exit_vals = []
+        exit_steps = np.linspace(-90, Theta_n - 90, 50)
+
+        for i in exit_steps: 
+            x_par, y_par = exit(i)[0],exit(i)[1]
+            x_exit_vals.append(x_par)
+            y_exit_vals.append(y_par)
+
+        x_noz_vals = []
+        y_noz_vals = []
+
+        t_steps = np.linspace(0,1,50)
+
+        for i in t_steps: 
+            x_par, y_par = parabolic_nozzle(i)[0],parabolic_nozzle(i)[1]
+            x_noz_vals.append(x_par)
+            y_noz_vals.append(y_par)
 
         ## Limits of each section, might change to make code nicer
         y0 = R_t
@@ -169,11 +231,7 @@ class Engine:
         liney1 = np.linspace(ym2, 
                             y0+(R_b-R_b*acos(Theta_c)), 10)
 
-        # Diverging nozzle
-        linex2 = np.linspace(x0+R_s*asin(-Theta_e), 
-                            x1+R_s*asin(-Theta_e), 10)
-        liney2 = np.linspace(y0+(R_s-R_s*acos(Theta_e)),
-                            y1+(R_s-R_s*acos(Theta_e)), 10)
+
 
         # Spray angle
         spray_angle = abs(90-spray_angle) # Correction
@@ -185,15 +243,8 @@ class Engine:
 
         plt.plot(linex0, liney0, 'k-')
         plt.plot(linex1, liney1, 'k-')
-        plt.plot(linex2, liney2, 'k-')
         plt.plot(linex0, -liney0, 'k-')
         plt.plot(linex1, -liney1, 'k-')
-        plt.plot(linex2, -liney2, 'k-')
-
-        plt.plot(xb,circle(xb,R_b), 'k-')
-        plt.plot(xs,circle(xs,R_s), 'k-')
-        plt.plot(xb,-circle(xb,R_b), 'k-')
-        plt.plot(xs,-circle(xs,R_s), 'k-')
 
         plt.plot(np.linspace(chamber_end+L_pintle, chamber_end+L_pintle+R_pintle, 50),
                 pintle_end(np.linspace(chamber_end+L_pintle, chamber_end+L_pintle+R_pintle, 50)), 'k-')
