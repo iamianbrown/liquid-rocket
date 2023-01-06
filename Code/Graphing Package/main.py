@@ -10,14 +10,14 @@ from Graphing_Code import *
 combustionprops = { #goes into combustion class
     'fuel': 'JetA',
     'oxidizer': 'LOX',
-    'F': 5000,  #5000 N is Grunt's Thrust
+    'F': 2500,  #5000 N is Grunt's Thrust
     'OF_Ratio': 2.25, 
     'p_c': 300 #psi - chamber pressure 
 }
 
 chamber_geometry = { #goes into chamber class
-    'R_c': .065, #Chamber radius [m]
-    'L_characteristic': .9, #Characteristic length [m]
+    'R_c': .04, #Chamber radius [m]
+    'L_characteristic': 1.2, #Characteristic length [m]
 }
 
 bartzprops = { #goes into combustion class
@@ -30,8 +30,8 @@ bartzprops = { #goes into combustion class
 injectorprops = { #goes into injector class
     'rho_r': 1141, #kg/m^3 - density of radial propellant 
     'rho_z': 810, #kg/m^3 - density of annular propellant
-    'd1': 1.3, #mm - row 1 orifice diameters for pintle
-    'd2': 1.3, #mm - row 2 orifice diameters for pintle
+    'd1': 1.1, #mm - row 1 orifice diameters for pintle
+    'd2': 1.1, #mm - row 2 orifice diameters for pintle
     'C_d': .75, #Discharge coefficient
     'delta_P': 517000, #Pa (fuel pressure drop) - usually 25% of p_c  #15% is 310264 and 25% is 517000
     'delta_P_o': 310264, #Pa (oxidizer pressure drop) - usually 15% of p_c
@@ -51,15 +51,19 @@ MkII = Engine(COMBUSTIONobj=combustion1, CHAMBERobj=chamber1, INJobj=inj1)
 #print(inj1.injector_props['BF'])
 #print(MkII.COMBUSTIONobj.tca_props['Cp'])
 
-#inj1.pintle_graph()
+# inj1.pintle_graph()
 
 
 #MkII.plotparams('R_c', 'theta_c', .07, .12, 1000)
 #MkII.plotparams('F', 'mdot', 4900, 5500, 1000)
-MkII.engineVisual()
+# inj1.pintle_graph()
+print(chamber1.geocalc())
+
+# dc = np.sqrt(0.24969133052074244*2*4/np.pi)
+# print(((0.065**2)*np.pi/0.024969133052074244))
 
 
-
+print(0.12484566526037122)
 
 
 

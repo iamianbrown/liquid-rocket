@@ -117,9 +117,6 @@ class Engine:
         def acos(angle):
             return np.cos(angle*np.pi/180)
 
-        def circle(x,R):    # Function for throat arcs with positions (0, R+R_t)
-            return (-np.sqrt(R**2-x**2)+(R+R_t))
-
         def pintle_end(x):
             return np.sqrt(R_pintle**2-(x-(chamber_end+L_pintle))**2) 
 

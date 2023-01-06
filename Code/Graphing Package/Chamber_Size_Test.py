@@ -48,6 +48,7 @@ class Chamber:
         gamma = self.COMBUSTIONobj.tca_props['gamma']
         R = self.COMBUSTIONobj.tca_props['R']
         eps = self.COMBUSTIONobj.tca_props['eps']
+        c_star = self.COMBUSTIONobj.tca_props['cstar']
         
         A_t = mdot/(p_c/np.sqrt(T_c)*np.sqrt(gamma/R*(2/(gamma+1))**((gamma+1)/(gamma-1)))) #Throat Area
         #print(A_t)
@@ -78,6 +79,7 @@ class Chamber:
             'R_e': R_e, #exit radius
             'R_b': R_b, # Radius of bigger arc, usually 1.5 times the throat radius
             'R_s': R_s, # Radius of smaller arc, usually 0.4 times the throat radius
+            'c_star': c_star # c star [ft/s]
         }
 
         return(geodict)
