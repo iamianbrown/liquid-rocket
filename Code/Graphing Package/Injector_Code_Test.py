@@ -56,8 +56,8 @@ class Injector:
         #Calculate pintle diameter and radius using chamber-to-pintle ratio
         D_p = R_c / 3 #Pintle diameter 
         R_p = D_p / 2 #Pintle radius
-        L_pintle = L_c/3  # Pintle length
-        skip_length = D_p * self.injector_props['skip_distance']
+        L_pintle = (D_p * self.injector_props['skip_distance']) + R_p
+
 
         pintle_system_dict = {
             'D_p': D_p,

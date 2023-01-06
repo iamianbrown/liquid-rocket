@@ -17,7 +17,7 @@ combustionprops = { #goes into combustion class
 
 chamber_geometry = { #goes into chamber class
     'R_c': .04, #Chamber radius [m]
-    'L_characteristic': 1.2, #Characteristic length [m]
+    'L_characteristic': 0.9, #Characteristic length [m]
 }
 
 bartzprops = { #goes into combustion class
@@ -51,11 +51,11 @@ MkII = Engine(COMBUSTIONobj=combustion1, CHAMBERobj=chamber1, INJobj=inj1)
 #print(inj1.injector_props['BF'])
 #print(MkII.COMBUSTIONobj.tca_props['Cp'])
 
-# inj1.pintle_graph()
+MkII.engineVisual()
 
 
 #MkII.plotparams('R_c', 'theta_c', .07, .12, 1000)
-#MkII.plotparams('F', 'mdot', 4900, 5500, 1000)
+# MkII.plotparams('F', 'mdot', 4900, 5500, 1000)
 # inj1.pintle_graph()
 print(chamber1.geocalc())
 
@@ -63,7 +63,7 @@ print(chamber1.geocalc())
 # print(((0.065**2)*np.pi/0.024969133052074244))
 
 
-print(0.12484566526037122)
+# print(0.12484566526037122)
 
 
 

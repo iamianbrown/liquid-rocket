@@ -122,20 +122,20 @@ class Engine:
 
         #### GEOMETRICAL VARIABLES
         R_c = self.CHAMBERobj.geometric_props['R_c']
-        L_c = self.CHAMBERobj.geometric_props['L_c'] / 100
-        R_t = self.CHAMBERobj.geometric_props['R_t'] / 10
-        R_e = self.CHAMBERobj.geometric_props['R_e'] / 10
+        L_c = self.CHAMBERobj.geometric_props['L_c']
+        R_t = self.CHAMBERobj.geometric_props['R_t']
+        R_e = self.CHAMBERobj.geometric_props['R_e']
         
         Theta_c = 35      # Angle for converging nozzle [deg]
         Theta_n = 33     # Angle for diverging nozzle [deg]
         Theta_e = 7      # Angle for exit of nozzle [deg]
         e_ratio = self.COMBUSTIONobj.tca_props['eps']
 
-        R_b = self.CHAMBERobj.geometric_props['R_b'] / 10
-        R_s = self.CHAMBERobj.geometric_props['R_s'] / 10
+        R_b = self.CHAMBERobj.geometric_props['R_b']
+        R_s = self.CHAMBERobj.geometric_props['R_s']
 
         R_pintle = self.INJobj.injector_props['R_p']
-        L_pintle = self.INJobj.injector_props['L_pintle'] / 100
+        L_pintle = self.INJobj.injector_props['L_pintle']
 
         spray_angle = self.INJobj.injector_props['theta_c']  # [deg]
 

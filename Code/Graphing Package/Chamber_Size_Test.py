@@ -48,10 +48,9 @@ class Chamber:
         gamma = self.COMBUSTIONobj.tca_props['gamma']
         R = self.COMBUSTIONobj.tca_props['R']
         eps = self.COMBUSTIONobj.tca_props['eps']
-        c_star = self.COMBUSTIONobj.tca_props['cstar']
+        c_star = self.COMBUSTIONobj.tca_props['cstar'] / 3.281
         
-        A_t = mdot/(p_c/np.sqrt(T_c)*np.sqrt(gamma/R*(2/(gamma+1))**((gamma+1)/(gamma-1)))) #Throat Area
-        #print(A_t)
+        A_t = mdot*c_star/(p_c*6894.76) #Throat Area
 
         # The compression ratio will be
         eps_c = (np.pi*self.geometric_props['R_c']**2)/A_t
@@ -71,7 +70,7 @@ class Chamber:
         R_s = 0.382*R_t     # Radius of smaller arc, usually 0.4 times the throat radius
 
         geodict = {
-            'A_t': A_t, #throat area
+            'A_t': A_t, #throat area 
             'eps_c': eps_c, #expansion ratio
             'V_c': V_c, #volume of chamber
             'L_c': L_c, #length of chamber
@@ -79,7 +78,12 @@ class Chamber:
             'R_e': R_e, #exit radius
             'R_b': R_b, # Radius of bigger arc, usually 1.5 times the throat radius
             'R_s': R_s, # Radius of smaller arc, usually 0.4 times the throat radius
-            'c_star': c_star # c star [ft/s]
+            'c_star': c_star, # c star [ft/s]
+            'mdot' : mdot,
+            'T_c': T_c,
+            'gamma': gamma,
+            'p_c': p_c,
+            'R': R,
         }
 
         return(geodict)
